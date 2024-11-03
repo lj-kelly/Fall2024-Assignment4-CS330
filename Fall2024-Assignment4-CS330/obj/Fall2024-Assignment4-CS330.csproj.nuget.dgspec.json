@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\joshr\\source\\repos\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330.csproj": {}
+    "C:\\Users\\joshr\\Source\\Repos\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330.csproj": {}
   },
   "projects": {
-    "C:\\Users\\joshr\\source\\repos\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330.csproj": {
+    "C:\\Users\\joshr\\Source\\Repos\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\joshr\\source\\repos\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330.csproj",
+        "projectUniqueName": "C:\\Users\\joshr\\Source\\Repos\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330.csproj",
         "projectName": "Fall2024-Assignment4-CS330",
-        "projectPath": "C:\\Users\\joshr\\source\\repos\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330.csproj",
+        "projectPath": "C:\\Users\\joshr\\Source\\Repos\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330.csproj",
         "packagesPath": "C:\\Users\\joshr\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\joshr\\source\\repos\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330\\obj\\",
+        "outputPath": "C:\\Users\\joshr\\Source\\Repos\\Fall2024-Assignment4-CS330\\Fall2024-Assignment4-CS330\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\joshr\\AppData\\Roaming\\NuGet\\NuGet.Config",
