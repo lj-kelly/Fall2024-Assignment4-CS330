@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\buildMultiTargeting\Fall2024-Assignment4-CS330.props" />
+</Project>

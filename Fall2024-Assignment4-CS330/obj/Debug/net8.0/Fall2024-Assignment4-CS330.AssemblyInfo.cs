@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Fall2024-Assignment4-CS330")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+21c2574fe0cc25380057dfc5e9c62cb603aafe70")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5e14a8b625f87dc264e8f6ba47176e37c6012926")]
 [assembly: System.Reflection.AssemblyProductAttribute("Fall2024-Assignment4-CS330")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Fall2024-Assignment4-CS330")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
