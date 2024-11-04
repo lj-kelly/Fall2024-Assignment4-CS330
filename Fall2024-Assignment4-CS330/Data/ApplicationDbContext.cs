@@ -4,7 +4,7 @@ using Fall2024_Assignment4_CS330.Models;
 
 namespace Fall2024_Assignment4_CS330.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

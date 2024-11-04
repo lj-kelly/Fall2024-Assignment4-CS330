@@ -1,18 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Fall2024_Assignment4_CS330.Data;
 using Fall2024_Assignment4_CS330.Models;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 namespace Fall2024_Assignment4_CS330.Controllers
 {
     public class TTTController : Controller
     {
         private static TTTModel game = new TTTModel(); // Simulating a session-level game instance
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public TTTController(UserManager<ApplicationUser> userManager)
+        {
+            _userManager = userManager;
+        }
 
         // GET: TTT
         public ActionResult Index()
@@ -22,7 +25,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
 
         // POST: TTT/MakeMove
         [HttpPost]
-        public ActionResult MakeMove(int row, int col)
+        public async Task<ActionResult> MakeMove(int row, int col)
         {
             if (game.IsCellEmpty(row, col))
             {
@@ -31,6 +34,9 @@ namespace Fall2024_Assignment4_CS330.Controllers
 
             if (game.CheckWinner() != '\0')
             {
+                // Increment wins for the logged-in user
+                await IncrementWins();
+
                 ViewBag.Message = $"Player {game.CheckWinner()} wins!";
             }
             else if (game.IsDraw())
@@ -46,6 +52,19 @@ namespace Fall2024_Assignment4_CS330.Controllers
         {
             game = new TTTModel(); // Resetting the game
             return RedirectToAction("Index");
+        }
+
+        // Method to increment wins for the logged-in user
+        private async Task IncrementWins()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user != null)
+            {
+                user.GamesWon++;
+                await _userManager.UpdateAsync(user);
+            }
         }
     }
 }
