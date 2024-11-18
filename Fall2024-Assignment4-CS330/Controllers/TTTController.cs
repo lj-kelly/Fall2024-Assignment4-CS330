@@ -17,10 +17,34 @@ namespace Fall2024_Assignment4_CS330.Controllers
             _userManager = userManager;
         }
 
-        // GET: TTT
+        // GET: TTT/Index
         public ActionResult Index()
         {
             return View(game);
+        }
+
+        // GET: TTT/Local
+        public ActionResult Local()
+        {
+            game = new TTTModel();
+            game.Mode = "Local";
+            return View("Index", game);
+        }
+
+        // GET: TTT/Online
+        public ActionResult Online()
+        {
+            game = new TTTModel();
+            game.Mode = "Online";
+            return View("Index", game);
+        }
+
+        // GET: TTT/ChatGPT
+        public ActionResult ChatGPT()
+        {
+            game = new TTTModel();
+            game.Mode = "ChatGPT";
+            return View("Index", game);
         }
 
         // POST: TTT/MakeMove
@@ -29,15 +53,27 @@ namespace Fall2024_Assignment4_CS330.Controllers
         {
             if (game.IsCellEmpty(row, col))
             {
-                game.MakeMove(row, col);
+                // Handle the move based on the game mode
+                switch (game.Mode)
+                {
+                    case "Local":
+                        MakeLocalMove(row, col);
+                        break;
+                    case "Online":
+                        await MakeOnlineMove(row, col);
+                        break;
+                    case "ChatGPT":
+                        await MakeChatGPTMove(row, col);
+                        break;
+                }
             }
 
-            if (game.CheckWinner() != '\0')
+            // Check for winner or draw
+            char winner = game.CheckWinner();
+            if (winner != '\0')
             {
-                // Increment wins for the logged-in user
+                ViewBag.Message = $"Player {winner} wins!";
                 await IncrementWins();
-
-                ViewBag.Message = $"Player {game.CheckWinner()} wins!";
             }
             else if (game.IsDraw())
             {
@@ -47,12 +83,50 @@ namespace Fall2024_Assignment4_CS330.Controllers
             return View("Index", game);
         }
 
+        // Local Game Move Logic
+        private void MakeLocalMove(int row, int col)
+        {
+            // Alternate turns between 'X' and 'O'
+            game.MakeMove(row, col);
+        }
+
+        // Online Game Move Logic
+        private async Task MakeOnlineMove(int row, int col)
+        {
+            // Determine the current player based on their logged-in status
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            char currentPlayer = userId == game.Player1Id ? 'X' : 'O';
+
+            if (game.CurrentPlayer == currentPlayer && game.IsCellEmpty(row, col))
+            {
+                game.MakeMove(row, col);
+                game.TogglePlayer(); // Switch turns
+            }
+        }
+
+        // ChatGPT Game Move Logic
+        private async Task MakeChatGPTMove(int row, int col)
+        {
+            // Player makes a move
+            game.MakeMove(row, col);
+
+            // Check if player won
+            if (game.CheckWinner() == '\0' && !game.IsDraw())
+            {
+                // ChatGPT (AI) makes its move if the game isn't over
+                (int gptRow, int gptCol) = game.GetBestMove();
+                game.MakeMove(gptRow, gptCol);
+            }
+        }
+
         // GET: TTT/Reset
         public ActionResult Reset()
         {
-            game = new TTTModel(); // Resetting the game
+            // Wipe the board but keep the current game mode and player details
+            game.BoardString = new string('\0', 9); // Set all cells to empty
             return RedirectToAction("Index");
         }
+
 
         // Method to increment wins for the logged-in user
         private async Task IncrementWins()

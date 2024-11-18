@@ -111,7 +111,7 @@ namespace Fall2024_Assignment4_CS330.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TTTModel");
+                    b.ToTable("TTTModel", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
