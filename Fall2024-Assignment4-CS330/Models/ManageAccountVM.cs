@@ -14,5 +14,6 @@ namespace Fall2024_Assignment4_CS330.Models
         public int GamesLost { get; set; }
         public int GamesPlayed => GamesLost + GamesWon;
         public int WinPercentage => GamesPlayed == 0 ? 0 : (int)((double)GamesWon / GamesPlayed * 100);
+        public IFormFile? Photo { get; set; }
     }
 }

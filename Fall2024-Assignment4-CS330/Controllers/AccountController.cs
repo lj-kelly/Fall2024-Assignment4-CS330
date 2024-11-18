@@ -72,7 +72,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email};
                 var result = await _userManager.CreateAsync(user, model.Password);
 
                 if (result.Succeeded)
@@ -163,14 +163,16 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 return NotFound();
             }
 
-            // Retrieve DisplayName claim
+            // Retrieve DisplayName and Photo (if available)
             var displayNameClaim = await _userManager.GetClaimsAsync(user);
             var displayName = displayNameClaim.FirstOrDefault(c => c.Type == "DisplayName")?.Value;
 
             var model = new ManageAccountVM
             {
                 DisplayName = displayName,
-                Email = user.Email // Optionally include other properties you want to manage
+                Email = user.Email,
+                // Add the photo if it exists
+                Photo = user.Photo != null ? new FormFile(new MemoryStream(user.Photo), 0, user.Photo.Length, "photo", "photo") : null
             };
 
             return View(model);
@@ -194,20 +196,36 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 return NotFound();
             }
 
-            // Update the DisplayName claim
+            // Handle the DisplayName claim
             var currentClaims = await _userManager.GetClaimsAsync(user);
             var displayNameClaim = currentClaims.FirstOrDefault(c => c.Type == "DisplayName");
 
             if (displayNameClaim != null)
             {
-                // Remove the old claim
                 await _userManager.RemoveClaimAsync(user, displayNameClaim);
             }
 
-            // Add the new claim
             await _userManager.AddClaimAsync(user, new Claim("DisplayName", model.DisplayName));
 
-            // Optionally update email or other properties
+            // Handle the photo upload
+            if (model.Photo != null)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await model.Photo.CopyToAsync(memoryStream);
+                    user.Photo = memoryStream.ToArray();  // Convert the photo to a byte array
+                }
+
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return View(model);
+                }
+            }
 
             return RedirectToAction("Index", "Home");
         }

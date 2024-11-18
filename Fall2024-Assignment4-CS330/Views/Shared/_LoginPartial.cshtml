@@ -16,8 +16,17 @@
         var displayNameClaim = await UserManager.GetClaimsAsync(currentUser);
         var displayName = displayNameClaim.FirstOrDefault(c => c.Type == "DisplayName")?.Value;
 
+        // Retrieve the photo data as a base64 string
+        var photoBase64 = currentUser.Photo != null ? Convert.ToBase64String(currentUser.Photo) : null;
+
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Account" asp-action="Manage" title="Manage">@displayName</a>
+            <a class="nav-link text-dark" asp-controller="Account" asp-action="Manage" title="Manage">
+                @if (photoBase64 != null)
+                {
+                    <img src="data:image/jpeg;base64,@photoBase64" alt="User Photo" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 8px;" />
+                }
+                @displayName
+            </a>
         </li>
         <li class="nav-item">
             <form class="form-inline" asp-controller="Account" asp-action="Logout" asp-route-returnUrl="@Url.Action("Index", "Home")" method="post">
