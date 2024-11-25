@@ -107,7 +107,7 @@ namespace Fall2024_Assignment4_CS330.Services
             return null; // Invalid format
         }
 
-        public List<int> GetRandomMove(TTTModel board)
+        private List<int> GetRandomMove(TTTModel board)
         {
             // Collect all available cells (empty cells) on the board
             List<List<int>> availableMoves = new List<List<int>>();
@@ -142,6 +142,7 @@ namespace Fall2024_Assignment4_CS330.Services
 
             if (!IsValidMove(cords, board))
             {
+                //Makes retry calls a max of 3 times
                 for (int i = 0; i < 3; i++)
                 {
                     if (!string.IsNullOrEmpty(fullResponse))
@@ -162,6 +163,7 @@ namespace Fall2024_Assignment4_CS330.Services
                 }
             }
 
+            // If GPT cannot return a valid response, then make a random move
             cords = GetRandomMove(board);
 
             return cords;
