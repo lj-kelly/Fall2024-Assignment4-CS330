@@ -2,6 +2,8 @@ using Fall2024_Assignment4_CS330.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Fall2024_Assignment4_CS330.Models;
+using Microsoft.AspNetCore.Builder;
+using Fall2024_Assignment4_CS330.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +28,13 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+builder.Services.AddScoped<OpenAIService>();
+
+var openAIKey = builder.Configuration["OpenAIKey"];
+var openAIEndpoint = builder.Configuration["OpenAIEndpoint"];
+
+OpenAIService openAIService = new OpenAIService(builder.Configuration);
 
 var app = builder.Build();
 

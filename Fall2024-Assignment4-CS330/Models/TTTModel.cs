@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.ComponentModel.DataAnnotations;
+using Fall2024_Assignment4_CS330.Services;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Fall2024_Assignment4_CS330.Models
@@ -99,21 +100,26 @@ namespace Fall2024_Assignment4_CS330.Models
         }
 
         // Get the best move for ChatGPT (AI)
-        public (int row, int col) GetBestMove()
-        {
-            // Simple AI: First available move (can be replaced with a smarter algorithm like Minimax)
-            for (int i = 0; i < 3; i++)
-            {
-                for (int j = 0; j < 3; j++)
-                {
-                    if (IsCellEmpty(i, j))
-                    {
-                        return (i, j);
-                    }
-                }
-            }
-            return (-1, -1); // No move available
-        }
+        //public (int row, int col) GetBestMove()
+        //{
+        //    // Simple AI: First available move (can be replaced with a smarter algorithm like Minimax)
+        //    //for (int i = 0; i < 3; i++)
+        //    //{
+        //    //    for (int j = 0; j < 3; j++)
+        //    //    {
+        //    //        if (IsCellEmpty(i, j))
+        //    //        {
+        //    //            return (i, j);
+        //    //        }
+        //    //    }
+        //    //}
+
+        //    // Call the OpenAI API to get the next move
+        //    OpenAIService openAIService;
+        //    List<int> ints = new List<int>();
+        //    ints = openAIService.GetNextMove(this).Result;
+        //    return ints;
+        //}
 
         // Initialize players for online mode
         public void InitializePlayers(string player1Id, string player2Id)

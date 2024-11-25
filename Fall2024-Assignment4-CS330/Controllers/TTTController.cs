@@ -4,6 +4,8 @@ using Fall2024_Assignment4_CS330.Models;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using System.Collections.Specialized;
+using Fall2024_Assignment4_CS330.Services;
 
 namespace Fall2024_Assignment4_CS330.Controllers
 {
@@ -11,10 +13,12 @@ namespace Fall2024_Assignment4_CS330.Controllers
     {
         private static TTTModel game = new TTTModel(); // Simulating a session-level game instance
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly OpenAIService _openAIService;
 
-        public TTTController(UserManager<ApplicationUser> userManager)
+        public TTTController(UserManager<ApplicationUser> userManager, OpenAIService openAIService)
         {
             _userManager = userManager;
+            _openAIService = openAIService;
         }
 
         // GET: TTT/Index
@@ -114,8 +118,8 @@ namespace Fall2024_Assignment4_CS330.Controllers
             if (game.CheckWinner() == '\0' && !game.IsDraw())
             {
                 // ChatGPT (AI) makes its move if the game isn't over
-                (int gptRow, int gptCol) = game.GetBestMove();
-                game.MakeMove(gptRow, gptCol);
+                List<int> gptMove = await _openAIService.GetNextMove(game);
+                game.MakeMove(gptMove[0], gptMove[1]);
             }
         }
 
