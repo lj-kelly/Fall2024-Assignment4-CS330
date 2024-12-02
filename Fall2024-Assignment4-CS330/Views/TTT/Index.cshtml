@@ -6,25 +6,39 @@
 <h2>Tic Tac Toe</h2>
 
 <div>
-    <table border="1" style="border-collapse: collapse; width: 150px; height: 150px; text-align: center;">
-        @for (int i = 0; i < 3; i++)
+    <table border="1" style="border-collapse: collapse; width: 450px; height: 450px; text-align: center;">
+        @for (int x = 0; x < 3; x++) // Board rows
         {
             <tr>
-                @for (int j = 0; j < 3; j++)
+                @for (int y = 0; y < 3; y++) // Board columns
                 {
-                    <td style="width: 50px; height: 50px;">
-                        @if (Model.Board[i, j] == '\0')
-                        {
-                            <form method="post" action="@Url.Action("MakeMove", "TTT")" style="display: inline;">
-                                <input type="hidden" name="row" value="@i" />
-                                <input type="hidden" name="col" value="@j" />
-                                <button type="submit" style="width: 100%; height: 100%; font-size: 20px;">-</button>
-                            </form>
-                        }
-                        else
-                        {
-                            <span style="font-size: 24px;">@Model.Board[i, j]</span>
-                        }
+                    <td style="width: 150px; height: 150px;">
+                        <table border="1" style="border-collapse: collapse; width: 100%; height: 100%; text-align: center;">
+                            @for (int z = 0; z < 3; z++) // Grid rows
+                            {
+                                <tr>
+                                    @for (int w = 0; w < 3; w++) // Grid columns
+                                    {
+                                        <td style="width: 50px; height: 50px;">
+                                            @if (Model.Board[x,y,z,w] == '\0')
+                                            {
+                                                <form method="post" action="@Url.Action("MakeMove", "TTT")" style="display: inline;">
+                                                    <input type="hidden" name="gridRow" value="@x" />
+                                                    <input type="hidden" name="gridCol" value="@y" />
+                                                    <input type="hidden" name="cellRow" value="@z" />
+                                                    <input type="hidden" name="cellCol" value="@w" />
+                                                    <button type="submit" style="width: 100%; height: 100%; font-size: 20px;">-</button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <span style="font-size: 16px;">@Model.Board[x,y,z,w]</span>
+                                            }
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </table>
                     </td>
                 }
             </tr>
