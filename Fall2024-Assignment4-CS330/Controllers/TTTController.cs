@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.AspNetCore.Mvc;
 using Fall2024_Assignment4_CS330.Models;
 using System.Security.Claims;
