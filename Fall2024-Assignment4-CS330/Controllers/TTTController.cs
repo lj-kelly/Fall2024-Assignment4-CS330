@@ -83,6 +83,13 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 if (!IsGridAvailable(nextGrid))
                 {
                     nextGrid = GetRandomAvailableGrid();
+                    if (nextGrid == -1)
+                    {
+                        ViewBag.Message = "It's a draw!";
+                        game.GameWinner = 'T';
+                        await IncrementWins(true);
+                        return View("Index", game);
+                    }
                 }
                 game.RestrictedGrid = nextGrid;
                 
@@ -108,7 +115,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 {
                     ViewBag.Message = $"Player {boardWinner} wins the game!";
                     game.GameWinner = boardWinner;
-                    await IncrementWins();
+                    await IncrementWins(false);
                 }
                 else if (!IsBoardAvailable())
                 {
@@ -133,7 +140,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
         }
 
         // Method to increment wins for the logged-in user
-        private async Task IncrementWins()
+        private async Task IncrementWins(bool tie)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(userId);
@@ -191,6 +198,8 @@ namespace Fall2024_Assignment4_CS330.Controllers
                     availableGrids.Add(i);
                 }
             }
+
+            if (availableGrids.Count == 0) return -1;
 
             Random rand = new Random();
             return availableGrids[rand.Next(availableGrids.Count)];
