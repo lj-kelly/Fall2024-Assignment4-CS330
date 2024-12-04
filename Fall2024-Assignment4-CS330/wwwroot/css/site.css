@@ -66,6 +66,12 @@ body {
     margin-top: 20vh; /* Center content vertically */
 }
 
+
+
+
+.display-4 {
+    color: #38b000;
+=======
 .claimed-x {
     background-color: #ac4343;
 }
