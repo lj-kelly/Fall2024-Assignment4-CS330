@@ -65,7 +65,8 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 if (!IsGridAvailable(nextGrid))
                 {
                     nextGrid = GetRandomAvailableGrid();
-                } 
+                }
+                game.RestrictedGrid = nextGrid;
                 
                 if (currentPlayer == 'X')
                 {
@@ -88,6 +89,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 if (boardWinner != '\0')
                 {
                     ViewBag.Message = $"Player {boardWinner} wins the game!";
+                    game.GameWinner = boardWinner;
                     await IncrementWins();
                 }
                 else if (!IsBoardAvailable())

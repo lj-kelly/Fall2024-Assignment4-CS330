@@ -50,12 +50,12 @@ body {
     z-index: -1; /* Places the video behind the content */
 }
 
-    /* Ensure video covers entire viewport */
-    .video-background video {
-        width: 100vw;
-        height: 100vh;
-        object-fit: cover; /* Ensures the video fills the viewport while keeping its aspect ratio */
-    }
+/* Ensure video covers entire viewport */
+.video-background video {
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover; /* Ensures the video fills the viewport while keeping its aspect ratio */
+}
 
 /* Style for content layered over the video */
 .content {
@@ -64,4 +64,20 @@ body {
     color: white; /* Adjust color for readability against video background */
     text-align: center;
     margin-top: 20vh; /* Center content vertically */
+}
+
+.claimed-x {
+    background-color: #ac4343;
+}
+
+.claimed-o {
+    background-color: #45a0aa;
+}
+
+.tied-grid {
+    background-color: #626262;
+}
+
+.restricted-grid {
+    background-color: #72ad57;
 }

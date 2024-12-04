@@ -8,14 +8,15 @@ namespace Fall2024_Assignment4_CS330.Models
     {
         [Key]
         public int Id { get; set; }
+        public char GameWinner { get; set; } = '\0';
 
         // Flattened representation of all boards for storage
         public string BoardString { get; set; } = new string('\0', 81); // 9x9 flattened grid
-
         public string Mode { get; set; } = "Local";
         public string Player1Id { get; set; }
         public string Player2Id { get; set; }
         public char CurrentPlayer { get; set; } = 'X';
+        public int? RestrictedGrid { get; set; }
 
         [NotMapped]
         public char[,,,] Board
