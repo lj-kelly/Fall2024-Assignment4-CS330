@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.AspNetCore.Mvc;
 using Fall2024_Assignment4_CS330.Models;
 using System.Security.Claims;
@@ -39,6 +39,24 @@ namespace Fall2024_Assignment4_CS330.Controllers
             restrictedGridX = null;
             restrictedGridO = null;
             game.Mode = "Local";
+            return View("Index", game);
+        }
+
+        public ActionResult ChatGPT()
+        {
+            game = new TTTModel();
+            restrictedGridX = null;
+            restrictedGridO = null;
+            game.Mode = "ChatGPT";
+            return View("Index", game);
+        }
+
+        public ActionResult Online()
+        {
+            game = new TTTModel();
+            restrictedGridX = null;
+            restrictedGridO = null;
+            game.Mode = "Online";
             return View("Index", game);
         }
 
