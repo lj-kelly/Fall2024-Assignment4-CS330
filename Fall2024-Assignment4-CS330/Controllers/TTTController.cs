@@ -42,6 +42,24 @@ namespace Fall2024_Assignment4_CS330.Controllers
             return View("Index", game);
         }
 
+        public ActionResult ChatGPT()
+        {
+            game = new TTTModel();
+            restrictedGridX = null;
+            restrictedGridO = null;
+            game.Mode = "ChatGPT";
+            return View("Index", game);
+        }
+
+        public ActionResult Online()
+        {
+            game = new TTTModel();
+            restrictedGridX = null;
+            restrictedGridO = null;
+            game.Mode = "Online";
+            return View("Index", game);
+        }
+
         // POST: TTT/MakeMove
         [HttpPost]
         public async Task<ActionResult> MakeMove(int gridRow, int gridCol, int cellRow, int cellCol)
