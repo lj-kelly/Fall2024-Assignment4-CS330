@@ -1,30 +1,105 @@
 ﻿@model Fall2024_Assignment4_CS330.Models.TTTModel
 @{
     ViewBag.Title = "Tic Tac Toe";
+    var playerColor = Model.CurrentPlayer == 'X' ? "text-danger" : "text-info";
+    var pointerEvents = Model.GameWinner == '\0' ? "all" : "none";
 }
 
-<h2>Tic Tac Toe</h2>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const video = document.getElementById("background-video");
+        const STORAGE_KEY = "videoPlaybackTime";
+
+        if (!video) {
+            console.error("Video element not found. Check your HTML for the correct ID.");
+            return;
+        }
+
+        // Ensure the video is ready before setting currentTime
+        video.addEventListener("loadedmetadata", () => {
+            const savedTime = localStorage.getItem(STORAGE_KEY);
+            if (savedTime) {
+                video.currentTime = parseFloat(savedTime);
+            }
+        });
+
+        // Save playback time every second
+        const updatePlaybackTime = () => {
+            if (!isNaN(video.currentTime)) {
+                localStorage.setItem(STORAGE_KEY, video.currentTime);
+            }
+        };
+
+        // Save playback time periodically
+        const saveInterval = setInterval(updatePlaybackTime, 1000);
+
+        // Cleanup on page unload
+        window.addEventListener("beforeunload", () => {
+            updatePlaybackTime();
+            clearInterval(saveInterval);
+        });
+    });
+
+</script>
+
+<div class="video-background">
+    <video id="background-video" autoplay loop muted playsinline preload="auto" src="lib\roku_60fps_interpolated.mp4">
+        Your browser does not support the video tag.
+    </video>
+</div>
+
+<h2 class="text-primary">Tic Tac Toe</h2>
+
+@if (Model.GameWinner == '\0')
+{
+    <h3 class="text-secondary">It is <span class=@playerColor>@Model.CurrentPlayer</span>'s turn</h3>
+}
 
 <div>
-    <table border="1" style="border-collapse: collapse; width: 150px; height: 150px; text-align: center;">
-        @for (int i = 0; i < 3; i++)
+    <table border="1" style="border-collapse: collapse; width: 450px; height: 450px; text-align: center; pointer-events: @pointerEvents;">
+        @for (int x = 0; x < 3; x++) // Board rows
         {
             <tr>
-                @for (int j = 0; j < 3; j++)
+                @for (int y = 0; y < 3; y++) // Board columns
                 {
-                    <td style="width: 50px; height: 50px;">
-                        @if (Model.Board[i, j] == '\0')
-                        {
-                            <form method="post" action="@Url.Action("MakeMove", "TTT")" style="display: inline;">
-                                <input type="hidden" name="row" value="@i" />
-                                <input type="hidden" name="col" value="@j" />
-                                <button type="submit" style="width: 100%; height: 100%; font-size: 20px;">-</button>
-                            </form>
-                        }
-                        else
-                        {
-                            <span style="font-size: 24px;">@Model.Board[i, j]</span>
-                        }
+                    var winner = Model.CheckGridWinner(x, y);
+                    var cellClass = "";
+                    if (winner == 'X') cellClass = "claimed-x";
+                    if (winner == 'O') cellClass = "claimed-o";
+
+                    if (Model.RestrictedGrid == x * 3 + y) cellClass = "restricted-grid";
+                    
+                    <td style="width: 150px; height: 150px;">
+                        <table border="1" style="border-collapse: collapse; width: 100%; height: 100%; text-align: center;">
+                            @for (int z = 0; z < 3; z++) // Grid rows
+                            {
+                                <tr>
+                                    @for (int w = 0; w < 3; w++) // Grid columns
+                                    {
+                                        var textColor = "";
+                                        if (Model.Board[x, y, z, w] == 'X') textColor = "text-danger";
+                                        if (Model.Board[x, y, z, w] == 'O') textColor = "text-info";
+
+                                        <td style="width: 50px; height: 50px;">
+                                            @if (Model.Board[x,y,z,w] == '\0')
+                                            {
+                                                <form method="post" action="@Url.Action("MakeMove", "TTT")" style="display: inline;">
+                                                    <input type="hidden" name="gridRow" value="@x" />
+                                                    <input type="hidden" name="gridCol" value="@y" />
+                                                    <input type="hidden" name="cellRow" value="@z" />
+                                                    <input type="hidden" name="cellCol" value="@w" />
+                                                    <button class=@cellClass type="submit" style="width: 100%; height: 100%; font-size: 20px;"></button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <h4 class=@textColor class=@cellClass>@Model.Board[x,y,z,w]</h4>
+                                            }
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </table>
                     </td>
                 }
             </tr>
@@ -34,8 +109,9 @@
 
 @if (ViewBag.Message != null)
 {
-    <h3>@ViewBag.Message</h3>
-    <form method="get" action="@Url.Action("Reset", "TTT")">
-        <button type="submit" style="margin-top: 20px;">Restart Game</button>
-    </form>
+    <h3 class="text-secondary">@ViewBag.Message</h3>
 }
+
+<form method="get" action="@Url.Action("Reset", "TTT")">
+    <button class="btn btn-primary" type="submit" style="margin-top: 20px;">Restart Game</button>
+</form>
