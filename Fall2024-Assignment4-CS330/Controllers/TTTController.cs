@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Linq;
 using System.Collections.Generic;
 using Fall2024_Assignment4_CS330.Services;
+using Azure;
 
 namespace Fall2024_Assignment4_CS330.Controllers
 {
@@ -32,6 +33,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
         {
             return View(game);
         }
+
 
         // GET: TTT/Local
         public ActionResult Local()
@@ -101,7 +103,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                     }
                 }
                 game.RestrictedGrid = nextGrid;
-                
+
                 if (currentPlayer == 'X')
                 {
                     restrictedGridO = nextGrid;
@@ -115,7 +117,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 char gridWinner = game.CheckGridWinner(gridRow, gridCol);
                 if (gridWinner != '\0')
                 {
-                    ViewBag.Message = $"Grid {GetGridIndex(gridRow,gridCol)+1} won by Player {gridWinner}!";
+                    ViewBag.Message = $"Grid {GetGridIndex(gridRow, gridCol) + 1} won by Player {gridWinner}!";
                 }
 
                 // Check for winner on the whole board
@@ -139,12 +141,33 @@ namespace Fall2024_Assignment4_CS330.Controllers
             return View("Index", game);
         }
 
+
+
+        // POST: TTT/GetHint
+        [HttpPost]
+        public async Task<IActionResult> GetHint()
+        {
+            try
+            {
+                Console.WriteLine("Greetings");
+                string response = await _openAIService.GetHint(game);
+                Console.WriteLine(response);
+                ViewBag.Hint = response;
+            }
+
+            catch (Exception ex)
+            {
+                ViewBag.Hint = "Sorry, but we couldn't fetch your hint.";
+            }
+
+            return View("Index", game);
+        }
+
         // GET: TTT/Reset
         public ActionResult Reset()
         {
-            game = new TTTModel(); // Start a new game
-            restrictedGridX = null;
-            restrictedGridO = null;
+            // Wipe the board but keep the current game mode and player details
+            game.BoardString = new string('\0', 9); // Set all cells to empty
             return RedirectToAction("Index");
         }
 
@@ -172,11 +195,11 @@ namespace Fall2024_Assignment4_CS330.Controllers
         {
             int gridRow = gridIndex / 3;
             int gridCol = gridIndex % 3;
-            if(game.CheckGridWinner(gridRow, gridCol) != '\0') return false;
+            if (game.CheckGridWinner(gridRow, gridCol) != '\0') return false;
             // no winner and topleft square empty
             for (int i = 0; i < 3; i++)
             {
-                for (int j = 0;  j < 3; j++)
+                for (int j = 0; j < 3; j++)
                 {
                     if (game.Board[gridRow, gridCol, i, j] == '\0') return true;
                 }
@@ -190,7 +213,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    if (IsGridAvailable(GetGridIndex(i,j))) return true;
+                    if (IsGridAvailable(GetGridIndex(i, j))) return true;
                 }
             }
             return false;

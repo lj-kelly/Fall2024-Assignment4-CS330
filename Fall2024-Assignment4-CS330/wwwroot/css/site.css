@@ -50,12 +50,12 @@ body {
     z-index: -1; /* Places the video behind the content */
 }
 
-/* Ensure video covers entire viewport */
-.video-background video {
-    width: 100vw;
-    height: 100vh;
-    object-fit: cover; /* Ensures the video fills the viewport while keeping its aspect ratio */
-}
+    /* Ensure video covers entire viewport */
+    .video-background video {
+        width: 100vw;
+        height: 100vh;
+        object-fit: cover; /* Ensures the video fills the viewport while keeping its aspect ratio */
+    }
 
 /* Style for content layered over the video */
 .content {
@@ -120,10 +120,26 @@ body {
 }
 
 .decorative-background {
+    display: flex;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(240, 240, 255, 0.9));
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(10px);
+    .pro-decorative-background
+
+{
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(240, 240, 255, 0.9));
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.hintDiv {
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 200px; /* Fixed width for the hint section */
+}
 }
 .pro-decorative-background {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(240, 240, 255, 0.9));

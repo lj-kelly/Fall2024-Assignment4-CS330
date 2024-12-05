@@ -127,6 +127,16 @@
         </table>
     </div>
 
+    <div class="hintDiv p-3">
+        <form method="post" action="@Url.Action("GetHint", "TTT")">
+            <button type="submit" id="getHintButton">Get a Hint</button>
+        </form>
+        <p id="hintText">
+            @ViewBag.Hint <!-- This will display the hint or error message -->
+        </p>
+    </div>
+</div>
+
     @if (ViewBag.Message != null)
     {
         <h3 class="text-secondary">@ViewBag.Message</h3>
