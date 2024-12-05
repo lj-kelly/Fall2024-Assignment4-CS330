@@ -102,68 +102,105 @@ namespace Fall2024_Assignment4_CS330.Services
             return null;
         }
 
-        private bool IsValidMove(List<int> moveCords, TTTModel board)
+        private bool IsValidMove(List<int> moveCords, TTTModel board, (int outerRow, int outerCol) restrictedGrid)
         {
-            if (moveCords == null || moveCords.Count != 2)
+            if (moveCords == null || moveCords.Count != 4)
                 return false;
 
-            int row = moveCords[0];
-            int col = moveCords[1];
+            int outerRow = moveCords[0];
+            int outerCol = moveCords[1];
+            int innerRow = moveCords[2];
+            int innerCol = moveCords[3];
 
-            return row >= 0 && row <= 2 && col >= 0 && col <= 2 && board.IsCellEmpty(row, col);
+            // Check if move is within the restricted grid and if the cell is empty
+            return outerRow == restrictedGrid.outerRow &&
+                   outerCol == restrictedGrid.outerCol &&
+                   innerRow >= 0 && innerRow <= 2 &&
+                   innerCol >= 0 && innerCol <= 2 &&
+                   board.IsCellEmpty(outerRow, outerCol, innerRow, innerCol);
         }
+
 
         private List<int> ParseCoordinates(string response)
         {
-            var match = Regex.Match(response, @"^\s*(\d),\s*(\d)\s*$");
+            var match = Regex.Match(response, @"^\s*(\d),\s*(\d),\s*(\d),\s*(\d)\s*$");
             if (match.Success)
             {
                 return new List<int>
-                {
-                    int.Parse(match.Groups[1].Value),
-                    int.Parse(match.Groups[2].Value)
-                };
+        {
+            int.Parse(match.Groups[1].Value),
+            int.Parse(match.Groups[2].Value),
+            int.Parse(match.Groups[3].Value),
+            int.Parse(match.Groups[4].Value)
+        };
             }
 
             return null; // Invalid format
         }
 
-        private List<int> GetRandomMove(TTTModel board)
+
+        private List<int> GetRandomMove(TTTModel board, (int outerRow, int outerCol) restrictedGrid)
         {
-            // Collect all available cells (empty cells) on the board
             List<List<int>> availableMoves = new List<List<int>>();
 
-            for (int row = 0; row < 3; row++)
+            // Check if the restricted grid is valid
+            if (board.IsGridPlayable(restrictedGrid.outerRow, restrictedGrid.outerCol))
             {
-                for (int col = 0; col < 3; col++)
+                // Collect available cells in the restricted grid
+                for (int innerRow = 0; innerRow < 3; innerRow++)
                 {
-                    if (board.IsCellEmpty(row, col))
+                    for (int innerCol = 0; innerCol < 3; innerCol++)
                     {
-                        availableMoves.Add(new List<int> { row, col });
+                        if (board.IsCellEmpty(restrictedGrid.outerRow, restrictedGrid.outerCol, innerRow, innerCol))
+                        {
+                            availableMoves.Add(new List<int> { restrictedGrid.outerRow, restrictedGrid.outerCol, innerRow, innerCol });
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Collect all available cells across all grids
+                for (int outerRow = 0; outerRow < 3; outerRow++)
+                {
+                    for (int outerCol = 0; outerCol < 3; outerCol++)
+                    {
+                        if (board.IsGridPlayable(outerRow, outerCol))
+                        {
+                            for (int innerRow = 0; innerRow < 3; innerRow++)
+                            {
+                                for (int innerCol = 0; innerCol < 3; innerCol++)
+                                {
+                                    if (board.IsCellEmpty(outerRow, outerCol, innerRow, innerCol))
+                                    {
+                                        availableMoves.Add(new List<int> { outerRow, outerCol, innerRow, innerCol });
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
 
             // If no available moves, return null
             if (availableMoves.Count == 0)
-            {
                 return null;
-            }
 
-            // Pick a random move from the available moves
+            // Pick a random move
             int randomIndex = _random.Next(availableMoves.Count);
             return availableMoves[randomIndex];
         }
 
-        public async Task<List<int>> GetNextMove(TTTModel board)
+
+        public async Task<List<int>> GetNextMove(TTTModel board, (int outerRow, int outerCol) restrictedGrid)
         {
             List<int> cords = null;
             string lastMove = "";
             string fullResponse = await getChatResponse(board, false, lastMove);
 
-            if (!IsValidMove(cords, board))
+            if (!IsValidMove(cords, board, restrictedGrid))
             {
-                //Makes retry calls a max of 3 times
+                // Retry up to 3 times
                 for (int i = 0; i < 3; i++)
                 {
                     if (!string.IsNullOrEmpty(fullResponse))
@@ -171,21 +208,21 @@ namespace Fall2024_Assignment4_CS330.Services
                         cords = ParseCoordinates(fullResponse);
                     }
 
-                    if (cords == null || !IsValidMove(cords, board))
+                    if (cords == null || !IsValidMove(cords, board, restrictedGrid))
                     {
-                        lastMove = fullResponse; // Record invalid move for redo
+                        lastMove = fullResponse; // Record invalid move for retry
                         fullResponse = await getChatResponse(board, true, lastMove);
                     }
 
-                    if(IsValidMove(cords, board))
+                    if (IsValidMove(cords, board, restrictedGrid))
                     {
                         return cords;
                     }
                 }
             }
 
-            // If GPT cannot return a valid response, then make a random move
-            cords = GetRandomMove(board);
+            // If GPT fails to provide a valid move, pick a random one
+            cords = GetRandomMove(board, restrictedGrid);
 
             return cords;
         }
