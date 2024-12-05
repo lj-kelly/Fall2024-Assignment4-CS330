@@ -74,21 +74,21 @@
                         var winner = Model.CheckGridWinner(x, y);
                         var gridClass = "";
                         var cellClass = "";
-                        if (winner == 'X') 
+                        if (winner == 'X')
                         {
-                            gridClass = "claimed-x";
-                        } 
-                        else if (winner == 'O') 
+                            gridClass = "pro-claimed-x";
+                        }
+                        else if (winner == 'O')
                         {
-                            gridClass = "claimed-o";
-                        } 
+                            gridClass = "pro-claimed-o";
+                        }
                         else if (!Model.IsGridPlayable(x, y))
                         {
-                            gridClass = "tied-grid";
+                            gridClass = "pro-tied-grid";
                         }
 
-                        if (Model.RestrictedGrid == x * 3 + y) cellClass = "restricted-grid";
-                    
+                        if (Model.RestrictedGrid == x * 3 + y) cellClass = "pro-restricted-grid";
+
                         <td style="width: 150px; height: 150px;">
                             <table class="grid @gridClass" border="1" style="border-collapse: collapse; width: 100%; height: 100%; text-align: center;">
                                 @for (int z = 0; z < 3; z++) // Grid rows
@@ -101,7 +101,7 @@
                                             if (Model.Board[x, y, z, w] == 'O') textColor = "text-info";
 
                                             <td class="cell" style="width: 50px; height: 50px;">
-                                                @if (Model.Board[x,y,z,w] == '\0')
+                                                @if (Model.Board[x, y, z, w] == '\0')
                                                 {
                                                     <form method="post" action="@Url.Action("MakeMove", "TTT")" style="display: inline;">
                                                         <input type="hidden" name="gridRow" value="@x" />
@@ -113,7 +113,7 @@
                                                 }
                                                 else
                                                 {
-                                                    <h4 class=@textColor>@Model.Board[x,y,z,w]</h4>
+                                                    <h4 class=@textColor>@Model.Board[x, y, z, w]</h4>
                                                 }
                                             </td>
                                         }
@@ -126,16 +126,6 @@
             }
         </table>
     </div>
-
-    <div class="hintDiv p-3">
-        <form method="post" action="@Url.Action("GetHint", "TTT")">
-            <button type="submit" id="getHintButton">Get a Hint</button>
-        </form>
-        <p id="hintText">
-            @ViewBag.Hint <!-- This will display the hint or error message -->
-        </p>
-    </div>
-</div>
 
     @if (ViewBag.Message != null)
     {

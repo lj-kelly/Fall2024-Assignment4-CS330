@@ -8,6 +8,12 @@ using System.Text.RegularExpressions;
 using Fall2024_Assignment4_CS330.Models;
 using OpenAI.Chat;
 using System.ClientModel;
+using Microsoft.AspNetCore.Components.Web;
+using Humanizer;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Composition;
+using System.Reflection;
+using System.Security.Policy;
 
 namespace Fall2024_Assignment4_CS330.Services
 {
@@ -37,24 +43,52 @@ namespace Fall2024_Assignment4_CS330.Services
             _chatClient = chatClient;
         }
 
-        private async Task<string> getChatResponse(TTTModel board, bool redo, string lastMove)
+        private async Task<string> getChatResponse(TTTModel board, bool redo, string lastMove, (int outerRow, int outerCol) restrictedGrid)
         {
             List<ChatMessage> messages;
 
+            string skillLevel;
+
+            /*
+            switch (difficulty)
+            {
+                case "Easy":
+                    skillLevel = "amateur";
+                    break;
+
+                case "Medium":
+                    skillLevel = "average";
+                    break;
+                case "Hard":
+                    skillLevel = "master";
+                    break;
+
+                default:
+                    skillLevel = "decent";
+                    break;
+            }
+
+            */
             if (!redo)
             {
                 messages = new List<ChatMessage>
                 {
-                    new SystemChatMessage("You are an expert Tic Tac Toe Player. You will receive the shape you are playing (X or O) and the current board state. Your task is to calculate the optimal move and return ONLY the coordinates in the format `row,column` without any explanation or additional text."),
-                    new UserChatMessage($"You are playing: '{board.CurrentPlayer}'. This is the board state:'{board.BoardString}'. Please provide the coordinates of your next move.")
+                    new SystemChatMessage(@"""You are a master player of Ultimate Tic Tac Toe. You will receive the shape you are playing(X or O), the current board state, and the restricted grid you are allowed to play in. Ultimate Tic Tac Toe rules apply:
+                    -Players alternate turns.
+                    -Moves must be made in the restricted grid unless it is unavailable(fully filled or has a winner).
+                    -You will return the best possible move within the restricted grid, taking into consideration both the current grid and the entire board. ONLY return the coordinates in the format `row,column` without any explanation or additional text."""),
+                    new UserChatMessage($"You are playing: '{board.CurrentPlayer}'. This is the board state:'{board.BoardString}'. Your restricted grid is the grid at row {restrictedGrid.outerRow}, column {restrictedGrid.outerCol}. Please provide the coordinates of the optimal move.")
                 };
             }
             else
             {
                 messages = new List<ChatMessage>
                 {
-                    new SystemChatMessage("You are an expert Tic Tac Toe Player. You will receive the shape you are playing (X or O) and the current board state. Your task is to calculate the optimal move and return ONLY the coordinates in the format `row,column` without any explanation or additional text."),
-                    new UserChatMessage($"Do not make the move '{lastMove}'. You are playing: '{board.CurrentPlayer}'. This is the board state:'{board.BoardString}'. Please provide the coordinates of your next move.")
+                    new SystemChatMessage(@"""You are a master player of Ultimate Tic Tac Toe. You will receive the shape you are playing(X or O), the current board state, and the restricted grid you are allowed to play in. Ultimate Tic Tac Toe rules apply:
+                    -Players alternate turns.
+                    -Moves must be made in the restricted grid unless it is unavailable(fully filled or has a winner).
+                    -You will return the best possible move within the restricted grid, taking into consideration both the current grid and the entire board. ONLY return the coordinates in the format `row,column` without any explanation or additional text."""),
+                    new UserChatMessage($"Do not make the move '{lastMove}'. You are playing: '{board.CurrentPlayer}'. This is the board state:'{board.BoardString}'. Your restricted grid is the grid at row {restrictedGrid.outerRow}, column {restrictedGrid.outerCol}. Please provide the coordinates of the optimal move.")
                 };
             }
 
@@ -171,11 +205,12 @@ namespace Fall2024_Assignment4_CS330.Services
         }
 
 
+
         public async Task<List<int>> GetNextMove(TTTModel board, (int outerRow, int outerCol) restrictedGrid)
         {
             List<int> cords = null;
             string lastMove = "";
-            string fullResponse = await getChatResponse(board, false, lastMove);
+            string fullResponse = await getChatResponse(board, false, lastMove, restrictedGrid);
 
             if (!IsValidMove(cords, board, restrictedGrid))
             {
@@ -190,7 +225,7 @@ namespace Fall2024_Assignment4_CS330.Services
                     if (cords == null || !IsValidMove(cords, board, restrictedGrid))
                     {
                         lastMove = fullResponse; // Record invalid move for retry
-                        fullResponse = await getChatResponse(board, true, lastMove);
+                        fullResponse = await getChatResponse(board, true, lastMove, restrictedGrid);
                     }
 
                     if (IsValidMove(cords, board, restrictedGrid))
@@ -204,6 +239,54 @@ namespace Fall2024_Assignment4_CS330.Services
             cords = GetRandomMove(board, restrictedGrid);
 
             return cords;
+        }
+        public async Task<string> GetHint(TTTModel board)
+        {
+            Console.WriteLine("Getting hint");
+            (int outerRow, int outerCol) restrictedGrid = board.RestrictedGrid.HasValue
+            ? (board.RestrictedGrid.Value / 3, board.RestrictedGrid.Value % 3)
+            : (-1, -1);
+
+            // Request a move and explanation from GPT
+
+            List<int> gptMoves = await GetNextMove(board, restrictedGrid);
+
+            var messages = new List<ChatMessage>
+            {
+                new SystemChatMessage(@"""You are a master player of Ultimate Tic Tac Toe. You will receive the shape you are playing(X or O), the current board state, the restricted grid you are allowed to play in, and the row and column of the move you will play.. Ultimate Tic Tac Toe rules apply:
+                    -Players alternate turns.
+                    -Moves must be made in the restricted grid unless it is unavailable(fully filled or has a winner).
+                    -You will give a short description on why this is the optimal move, taking into consideration both the current grid and the entire board. ONLY return the coordinates in the format `row,column` without any explanation or additional text."""),
+
+                    new UserChatMessage($@"""You are playing: '{board.CurrentPlayer}'. This is the board state:'{board.BoardString}'. 
+                    Your restricted grid is the grid at row {restrictedGrid.outerRow}, column {restrictedGrid.outerCol}. 
+                    Your move within the restricted grid is at row {gptMoves[0]}, column {gptMoves[1]}. Please give a short description on why this is the optimal move.""")
+            };
+
+            var options = new ChatCompletionOptions
+            {
+                Temperature = 0.7f
+            };
+
+            string explanation = string.Empty;
+            try
+            {
+                ChatCompletion completion = await _chatClient.CompleteChatAsync(messages, options);
+
+                if (completion.Content != null)
+                {
+                    explanation = completion.Content.First().Text.Trim();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error fetching chat response: " + ex.Message);
+            }
+
+
+            // Step 4: Format the response
+            return $"Hint: Move to row {gptMoves[0] + 1}, column {gptMoves[1] + 1}. {explanation}";
         }
     }
 }

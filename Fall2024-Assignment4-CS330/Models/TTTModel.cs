@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Fall2024_Assignment4_CS330.Controllers;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Fall2024_Assignment4_CS330.Models
 {
@@ -80,6 +81,7 @@ namespace Fall2024_Assignment4_CS330.Models
                 TogglePlayer();
             }
         }
+
 
         public void TogglePlayer()
         {
