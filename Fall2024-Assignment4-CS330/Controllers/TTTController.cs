@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Specialized;
 using Fall2024_Assignment4_CS330.Services;
+using Azure;
 
 namespace Fall2024_Assignment4_CS330.Controllers
 {
@@ -120,6 +121,29 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 // ChatGPT (AI) makes its move if the game isn't over
                 List<int> gptMove = await _openAIService.GetNextMove(game);
                 game.MakeMove(gptMove[0], gptMove[1]);
+            }
+        }
+
+
+        // POST: TTT/GetHint
+        [HttpPost]
+        public async Task<IActionResult> GetHint()
+        {
+            try
+            {
+                Console.WriteLine("Greetings");
+                string response = await _openAIService.GetHint(game);
+                Console.WriteLine(response);
+                ViewBag.Hint = response;
+
+                return View("Index", game);
+            }
+
+            catch (Exception ex)
+            {
+                ViewBag.Hint = "Sorry, but we couldn't fetch your hint.";
+                return View("Index", game);
+
             }
         }
 

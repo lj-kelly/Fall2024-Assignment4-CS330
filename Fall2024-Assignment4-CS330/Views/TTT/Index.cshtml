@@ -6,6 +6,14 @@
 <h2>Tic Tac Toe</h2>
 
 <div>
+    <div class="hintDiv">
+        <form method="post" action="@Url.Action("GetHint", "TTT")">
+            <button type="submit" id="getHintButton">Get a Hint</button>
+        </form>
+        <p id="hintText">
+            @ViewBag.Hint  <!-- Display the hint here after form submission -->
+        </p>
+    </div>
     <table border="1" style="border-collapse: collapse; width: 150px; height: 150px; text-align: center;">
         @for (int i = 0; i < 3; i++)
         {

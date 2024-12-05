@@ -65,3 +65,9 @@ body {
     text-align: center;
     margin-top: 20vh; /* Center content vertically */
 }
+
+.hintDiv {
+    position: absolute;
+    top: 10%;
+    right: 50%;
+}
