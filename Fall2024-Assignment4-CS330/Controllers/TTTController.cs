@@ -119,7 +119,10 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 }
                 else if (!IsBoardAvailable())
                 {
-                    ViewBag.Message = "It's a draw!";
+                    ViewBag.Message = "It's a draw!"; // edit: this will not always be a draw
+                    // win condition 1: if a player wins 3 adjacent grids
+                    // win condition 2: if a player wins more grids
+                    // only a draw if both players won equal grids
                 }
             }
             else
