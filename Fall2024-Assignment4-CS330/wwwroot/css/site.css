@@ -99,6 +99,7 @@ body {
 }
 
 .decorative-background {
+    display: flex;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(240, 240, 255, 0.9));
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(0, 0, 0, 0.2);
@@ -106,7 +107,8 @@ body {
 }
 
 .hintDiv {
-    position: absolute;
-    top: 10%;
-    right: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 200px; /* Fixed width for the hint section */
 }

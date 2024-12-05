@@ -1,9 +1,13 @@
 ﻿@model Fall2024_Assignment4_CS330.Models.TTTModel
 @{
     ViewBag.Title = "Tic Tac Toe";
+    var playerColor = Model.CurrentPlayer == 'X' ? "text-danger" : "text-info";
+    var pointerEvents = Model.GameWinner == '\0' ? "all" : "none";
 }
 
-<h2>Tic Tac Toe</h2>
+<script>
+    console.log("Player " + "@Model.CurrentPlayer" + "'s turn!");
+</script>
 
 <script>
     // ensure the video does not fully restart upon refresh
@@ -59,15 +63,6 @@
 <div class="container d-flex flex-column justify-content-center align-items-center text-center">
     <div class="decorative-background p-4 rounded mb-3">
         <h2 class="text-primary m-0">Tic Tac Toe - @Model.Mode - <span class="@playerColor">@Model.CurrentPlayer</span></h2>
-    </div>
-    <div>
-    <div class="hintDiv">
-        <form method="post" action="@Url.Action("GetHint", "TTT")">
-            <button type="submit" id="getHintButton">Get a Hint</button>
-        </form>
-        <p id="hintText">
-            @ViewBag.Hint  <!-- Display the hint here after form submission -->
-        </p>
     </div>
     <div>
         <table class="board" border="1" style="border-collapse: collapse; width: 450px; height: 450px; text-align: center; pointer-events: @pointerEvents;">
@@ -132,10 +127,22 @@
         </table>
     </div>
 
-@if (ViewBag.Message != null)
-{
-    <h3>@ViewBag.Message</h3>
+    <div class="hintDiv p-3">
+        <form method="post" action="@Url.Action("GetHint", "TTT")">
+            <button type="submit" id="getHintButton">Get a Hint</button>
+        </form>
+        <p id="hintText">
+            @ViewBag.Hint <!-- This will display the hint or error message -->
+        </p>
+    </div>
+</div>
+
+    @if (ViewBag.Message != null)
+    {
+        <h3 class="text-secondary">@ViewBag.Message</h3>
+    }
+
     <form method="get" action="@Url.Action("Reset", "TTT")">
-        <button type="submit" style="margin-top: 20px;">Restart Game</button>
+        <button class="btn btn-primary" type="submit" style="margin-top: 20px;">Restart Game</button>
     </form>
-}
+</div>

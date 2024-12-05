@@ -33,27 +33,32 @@ namespace Fall2024_Assignment4_CS330.Controllers
             return View(game);
         }
 
+
         // GET: TTT/Local
         public ActionResult Local()
         {
             game = new TTTModel();
+            restrictedGridX = null;
+            restrictedGridO = null;
             game.Mode = "Local";
             return View("Index", game);
         }
 
-        // GET: TTT/Online
-        public ActionResult Online()
-        {
-            game = new TTTModel();
-            game.Mode = "Online";
-            return View("Index", game);
-        }
-
-        // GET: TTT/ChatGPT
         public ActionResult ChatGPT()
         {
             game = new TTTModel();
+            restrictedGridX = null;
+            restrictedGridO = null;
             game.Mode = "ChatGPT";
+            return View("Index", game);
+        }
+
+        public ActionResult Online()
+        {
+            game = new TTTModel();
+            restrictedGridX = null;
+            restrictedGridO = null;
+            game.Mode = "Online";
             return View("Index", game);
         }
 
@@ -127,40 +132,6 @@ namespace Fall2024_Assignment4_CS330.Controllers
             return View("Index", game);
         }
 
-        // Local Game Move Logic
-        private void MakeLocalMove(int row, int col)
-        {
-            // Alternate turns between 'X' and 'O'
-            game.MakeMove(row, col);
-        }
-
-        // Online Game Move Logic
-        private async Task MakeOnlineMove(int row, int col)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            char currentPlayer = userId == game.Player1Id ? 'X' : 'O';
-
-            if (game.CurrentPlayer == currentPlayer && game.IsCellEmpty(row, col))
-            {
-                game.MakeMove(row, col);
-                game.TogglePlayer(); // Switch turns
-            }
-        }
-
-        // ChatGPT Game Move Logic
-        private async Task MakeChatGPTMove(int row, int col)
-        {
-            // Player makes a move
-            game.MakeMove(row, col);
-
-            // Check if player won
-            if (game.CheckWinner() == '\0' && !game.IsDraw())
-            {
-                // ChatGPT (AI) makes its move if the game isn't over
-                List<int> gptMove = await _openAIService.GetNextMove(game);
-                game.MakeMove(gptMove[0], gptMove[1]);
-            }
-        }
 
 
         // POST: TTT/GetHint
@@ -173,16 +144,14 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 string response = await _openAIService.GetHint(game);
                 Console.WriteLine(response);
                 ViewBag.Hint = response;
-
-                return View("Index", game);
             }
 
             catch (Exception ex)
             {
                 ViewBag.Hint = "Sorry, but we couldn't fetch your hint.";
-                return View("Index", game);
-
             }
+
+            return View("Index", game);
         }
 
         // GET: TTT/Reset
