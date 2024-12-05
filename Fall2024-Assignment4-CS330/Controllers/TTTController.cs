@@ -21,6 +21,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
         private static int? restrictedGridX = null; // The grid player X is restricted to
         private static int? restrictedGridO = null; // The grid player O is restricted to
 
+
         public TTTController(UserManager<ApplicationUser> userManager, OpenAIService openAIService)
         {
             _userManager = userManager;
@@ -41,7 +42,15 @@ namespace Fall2024_Assignment4_CS330.Controllers
             restrictedGridX = null;
             restrictedGridO = null;
             game.Mode = "Local";
-            return View("Index", game);
+            var userType = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
+            if (userType == "Standard")
+            {
+                return View("Index", game);
+            }
+            else
+            {
+                return View("ProIndex", game);
+            }
         }
 
         public ActionResult ChatGPT()

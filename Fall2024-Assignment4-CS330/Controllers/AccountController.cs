@@ -39,6 +39,24 @@ namespace Fall2024_Assignment4_CS330.Controllers
 
             if (result.Succeeded)
             {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+
+                if (user != null)
+                {
+                    // Optionally set the UserType in a claim
+                    var userClaims = await _userManager.GetClaimsAsync(user);
+                    var userTypeClaim = userClaims.FirstOrDefault(c => c.Type == "UserType");
+
+                    if (userTypeClaim == null)
+                    {
+                        // Add UserType claim if missing
+                        await _userManager.AddClaimAsync(user, new Claim("UserType", user.UserType));
+                    }
+
+                    // Store UserType in session if needed for dynamic theming
+                    HttpContext.Session.SetString("UserType", user.UserType);
+                }
+
                 return RedirectToLocal(returnUrl);
             }
             else if (result.IsNotAllowed)
@@ -72,12 +90,13 @@ namespace Fall2024_Assignment4_CS330.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email};
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email, UserType = "Standard" };
                 var result = await _userManager.CreateAsync(user, model.Password);
 
                 if (result.Succeeded)
                 {
                     // Add DisplayName as a claim
+                    await _userManager.AddClaimAsync(user, new Claim("UserType", user.UserType));
                     await _userManager.AddClaimAsync(user, new Claim("DisplayName", model.DisplayName));
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
