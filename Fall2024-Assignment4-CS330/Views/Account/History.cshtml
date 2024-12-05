@@ -1,0 +1,46 @@
+﻿@model Fall2024_Assignment4_CS330.Models.TTTModel
+
+@{
+    ViewData["Title"] = "Game History";
+}
+
+<h1>Game History</h1>
+
+<div>
+    <h2>Game Details</h2>
+    <p><strong>Game ID:</strong> @Model.Id</p>
+    <p><strong>Player 1 ID:</strong> @Model.Player1Id</p>
+    <p><strong>Player 2 ID:</strong> @Model.Player2Id</p>
+    <p><strong>Mode:</strong> @Model.Mode</p>
+    <p><strong>Winner:</strong> @(Model.GameWinner == '\0' ? "No Winner" : Model.GameWinner.ToString())</p>
+</div>
+
+<div>
+    <h2>Final Board</h2>
+    <table style="border-collapse: collapse; margin: 10px auto;">
+        @for (int outerRow = 0; outerRow < 3; outerRow++)
+        {
+            <tr>
+                @for (int outerCol = 0; outerCol < 3; outerCol++)
+                {
+                    <td style="border: 1px solid black; padding: 5px;">
+                        <table style="border-collapse: collapse;">
+                            @for (int innerRow = 0; innerRow < 3; innerRow++)
+                            {
+                                <tr>
+                                    @for (int innerCol = 0; innerCol < 3; innerCol++)
+                                    {
+                                        var cellValue = Model.Board[outerRow, outerCol, innerRow, innerCol];
+                                        <td style="width: 20px; height: 20px; text-align: center; border: 1px solid gray;">
+                                            @(cellValue == '\0' ? "-" : cellValue.ToString())
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </table>
+                    </td>
+                }
+            </tr>
+        }
+    </table>
+</div>

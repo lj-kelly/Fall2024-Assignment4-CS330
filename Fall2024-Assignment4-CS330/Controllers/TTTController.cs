@@ -157,6 +157,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
             if (user != null)
             {
                 user.GamesWon++;
+                user.GameHistory.Add(game);
                 await _userManager.UpdateAsync(user);
             }
         }
