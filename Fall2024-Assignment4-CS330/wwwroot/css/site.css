@@ -85,8 +85,24 @@ body {
     background-color: #626262;
 }
 
+.pro-claimed-x {
+    background-color: #009900;
+}
+
+.pro-claimed-o {
+    background-color: #ffcc00;
+}
+
+.pro-tied-grid {
+    background-color: #626262;
+}
+
+
 .restricted-grid {
     background-color: #72ad57;
+}
+.pro-restricted-grid {
+    background-color: #9933ff;
 }
 
 .grid {
@@ -98,7 +114,18 @@ body {
     border: 3px solid purple;
 }
 
+.pro-board {
+    background-color: rgba(255,100,255,0.3);
+    border: 3px solid purple;
+}
+
 .decorative-background {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(240, 240, 255, 0.9));
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+}
+.pro-decorative-background {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(240, 240, 255, 0.9));
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(0, 0, 0, 0.2);
