@@ -20,7 +20,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
 
         public IActionResult Index()
         {
-            // every time the page loads, remove games that failed or have been in the queue 5+ mins
+            // every time the page loads, remove games that failed, been in the queue 5+ mins, or been active too long
             _context.Database.ExecuteSqlRaw("EXEC CleanDeadGames");
             return View();
         }
@@ -52,7 +52,6 @@ namespace Fall2024_Assignment4_CS330.Controllers
             {
                 existingGame.Player2Id = userId;
                 existingGame.Status = Status.Active;
-                existingGame.GameCreationTime = DateTime.Now;
 
                 UpdateGameInDb(existingGame);
                 NotifyPlayer(existingGame.Id);
@@ -73,7 +72,8 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 JoinCode = gameCode,
                 Publicity = publicity,
                 Status = status,
-                MaxTime = maxTime
+                MaxTime = maxTime,
+                GameCreationTime = DateTime.Now
             };
 
             _context.TTTModel.Add(game);
@@ -113,7 +113,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 TempData["ErrorMessage"] = "This game is full. Please use a different code...";
                 return RedirectToAction("Index");
             }
-            if (existingGame.Status == Status.Failed)
+            if (existingGame.Status == Status.Queued)
             {
                 TempData["ErrorMessage"] = "This code is already in use. Would you like to join the game?";
                 return RedirectToAction("Index");
@@ -147,7 +147,6 @@ namespace Fall2024_Assignment4_CS330.Controllers
 
             existingGame.Player2Id = userId;
             existingGame.Status = Status.Active;
-            existingGame.GameCreationTime = DateTime.Now;
 
             UpdateGameInDb(existingGame);
             NotifyPlayer(existingGame.Id);
@@ -156,8 +155,11 @@ namespace Fall2024_Assignment4_CS330.Controllers
 
         public TTTModel FindPrivateGame(string gameCode) // find any private games with this password
         {
-            return _context.TTTModel.FirstOrDefault(
-                g => g.JoinCode == gameCode) 
+            // active or queued returned normally
+            // finished or empty counts as failed search
+            var games = _context.TTTModel;
+            return games.FirstOrDefault(
+                g => g.Publicity == Publicity.Private && g.JoinCode == gameCode && g.Status != Status.Complete) 
                 ?? new TTTModel { Status = Status.Failed };
         }
 

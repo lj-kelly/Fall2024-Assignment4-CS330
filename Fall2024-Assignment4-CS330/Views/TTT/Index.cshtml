@@ -2,7 +2,13 @@
 @{
     ViewBag.Title = "Tic Tac Toe";
     var playerColor = Model.CurrentPlayer == 'X' ? "text-danger" : "text-info";
-    var pointerEvents = Model.GameWinner == '\0' ? "all" : "none";
+    var pointerEvents = Model.Status == Status.Active ? "all" : "none";
+    string opp = "";
+    if (Model.Mode == "Online")
+    {
+        char self_x_or_o = (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.Player1Id) ? 'X' : 'O';
+        opp = self_x_or_o == 'X' ? Model.Player2Id : Model.Player1Id;
+    }
 }
 
 <script>
@@ -53,16 +59,19 @@
     </video>
 </div>
 
-<!--<div class="video-background">
-    <video id="background-video" autoplay loop muted playsinline preload="auto">
-        <source src="~/lib/roku_60fps_interpolated.mp4" type="video/m4v" />
-        Your browser does not support the video tag.
-    </video>
-</div>-->
-
 <div class="container d-flex flex-column justify-content-center align-items-center text-center">
     <div class="decorative-background p-4 rounded mb-3">
         <h2 class="text-primary m-0">Tic Tac Toe - @Model.Mode - <span class="@playerColor">@Model.CurrentPlayer</span></h2>
+        @if (Model.Status == Status.Queued)
+        {   
+            var s = "";
+            if (Model.Publicity == Publicity.Private) s = "Join Code: " + Model.JoinCode;
+            <h4 class="text-secondary">In the queue... @s</h4>
+        }
+        else if (Model.Status == Status.Active && Model.Mode == "Online")
+        {
+            <h4 class="text-secondary">Connected to player: @opp</h4>
+        }
     </div>
     <div>
         <table class="board" border="1" style="border-collapse: collapse; width: 450px; height: 450px; text-align: center; pointer-events: @pointerEvents;">
@@ -126,23 +135,27 @@
             }
         </table>
     </div>
-
-    <div class="hintDiv p-3">
-        <form method="post" action="@Url.Action("GetHint", "TTT")">
-            <button type="submit" id="getHintButton">Get a Hint</button>
-        </form>
-        <p id="hintText">
-            @ViewBag.Hint <!-- This will display the hint or error message -->
-        </p>
-    </div>
+    @if (Model.Mode != "Online")
+    {
+        <div class="hintDiv p-3">
+            <form method="post" action="@Url.Action("GetHint", "TTT")">
+                <button type="submit" id="getHintButton">Get a Hint</button>
+            </form>
+            <p id="hintText">
+                @ViewBag.Hint
+            </p>
+        </div>
+    }
 </div>
-
+<div class="decorative-background p-4 rounded mb-3">
     @if (ViewBag.Message != null)
     {
         <h3 class="text-secondary">@ViewBag.Message</h3>
     }
-
-    <form method="get" action="@Url.Action("Reset", "TTT")">
-        <button class="btn btn-primary" type="submit" style="margin-top: 20px;">Restart Game</button>
-    </form>
+    @if (Model.Mode != "Online")
+    {
+        <form method="get" action="@Url.Action("Reset", "TTT")">
+            <button class="btn btn-primary" type="submit" style="margin-top: 20px;">Restart Game</button>
+        </form>
+    }
 </div>

@@ -33,6 +33,7 @@ namespace Fall2024_Assignment4_CS330.Models
         public Status Status { get; set; }
         public int MaxTime { get; set; }
         public DateTime? GameCreationTime { get; set; } = null;
+        public string? ApplicationUserId { get; set; } = null;
 
         /// Game data
         /// Fields that effect the game itself
