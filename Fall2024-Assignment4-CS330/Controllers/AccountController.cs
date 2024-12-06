@@ -54,7 +54,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                     }
 
                     // Store UserType in session if needed for dynamic theming
-                    HttpContext.Session.SetString("UserType", user.UserType);
+                    // HttpContext.Session.SetString("UserType", user.UserType);
                 }
 
                 return RedirectToLocal(returnUrl);
