@@ -43,14 +43,22 @@ namespace Fall2024_Assignment4_CS330.Controllers
             restrictedGridO = null;
             game.Mode = "Local";
             game.Status = Status.Active;
+            foreach (var claim in User.Claims)
+            {
+                System.Diagnostics.Debug.WriteLine($"Claim Type: {claim.Type}, Claim Value: {claim.Value}");
+            }
             var userType = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
+            System.Diagnostics.Debug.WriteLine($"-------------");
+            System.Diagnostics.Debug.WriteLine($"{userType}");
             if (userType == "Standard")
             {
+                System.Diagnostics.Debug.WriteLine($"Standard");
                 return View("Index", game);
             }
             else
             {
-                return View("ProIndex", game);
+                System.Diagnostics.Debug.WriteLine($"Pro");
+                return View("Pro_Index", game);
             }
         }
 

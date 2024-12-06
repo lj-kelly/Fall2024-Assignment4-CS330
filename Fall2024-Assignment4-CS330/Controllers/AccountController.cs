@@ -28,7 +28,8 @@ namespace Fall2024_Assignment4_CS330.Controllers
         // POST: /Account/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginVM model, string returnUrl = null)
+   
+       public async Task<IActionResult> Login(LoginVM model, string returnUrl = null)
         {
             if (!ModelState.IsValid)
             {
@@ -43,18 +44,27 @@ namespace Fall2024_Assignment4_CS330.Controllers
 
                 if (user != null)
                 {
-                    // Optionally set the UserType in a claim
+                    // Retrieve the latest UserType from the database
+                    var latestUserType = user.UserType;
+                    System.Diagnostics.Debug.WriteLine($"Latest UserType from DB: {latestUserType}");
+
+                    // Get current claims
                     var userClaims = await _userManager.GetClaimsAsync(user);
                     var userTypeClaim = userClaims.FirstOrDefault(c => c.Type == "UserType");
 
-                    if (userTypeClaim == null)
+                    if (userTypeClaim == null || userTypeClaim.Value != latestUserType)
                     {
-                        // Add UserType claim if missing
-                        await _userManager.AddClaimAsync(user, new Claim("UserType", user.UserType));
-                    }
+                        // Remove old claim if it exists
+                        if (userTypeClaim != null)
+                        {
+                            await _userManager.RemoveClaimAsync(user, userTypeClaim);
+                        }
 
-                    // Store UserType in session if needed for dynamic theming
-                    // HttpContext.Session.SetString("UserType", user.UserType);
+                        // Add updated claim
+                        await _userManager.AddClaimAsync(user, new Claim("UserType", latestUserType));
+                        await _signInManager.RefreshSignInAsync(user); // Refresh the user's claims principal
+                    }
+                    System.Diagnostics.Debug.WriteLine($"B{userTypeClaim}");
                 }
 
                 return RedirectToLocal(returnUrl);
@@ -75,6 +85,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 return View(model);
             }
         }
+
 
         // GET: /Account/Register
         [HttpGet]
