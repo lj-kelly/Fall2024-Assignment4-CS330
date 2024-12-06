@@ -121,7 +121,8 @@ namespace Fall2024_Assignment4_CS330.Controllers
                     ViewBag.Message = $"Player {boardWinner} wins the game!";
                     game.GameWinner = boardWinner;
                     game.Status = Status.Complete;
-                    if (game.Mode == "Online") await IncrementWins(false);
+                    if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player1Id ) await IncrementWins(false);
+                    else await IncrementLosses(false);
                 }
                 else if (!IsBoardAvailable()) // no playable cells left
                 {
@@ -142,12 +143,14 @@ namespace Fall2024_Assignment4_CS330.Controllers
                         ViewBag.Message = "Player X wins the game!";
                         game.GameWinner = 'X';
                         if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player1Id && game.Mode == "Online") await IncrementWins(false);
+                        else await IncrementLosses(false);
                     } 
                     else if (gridsWonByO > gridsWonByX)
                     {
                         ViewBag.Message = "Player O wins the game!";
                         game.GameWinner = 'O';
                         if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player2Id && game.Mode == "Online") await IncrementWins(false);
+                        else await IncrementLosses(false);
                     } 
                     else // only a tie if both players won equal grids
                     {
@@ -202,13 +205,19 @@ namespace Fall2024_Assignment4_CS330.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(userId);
+            user.GamesWon++;
+            user.GameHistory.Add(game);
+            await _userManager.UpdateAsync(user);
+        }
 
-            if (user != null)
-            {
-                user.GamesWon++;
-                user.GameHistory.Add(game);
-                await _userManager.UpdateAsync(user);
-            }
+        // Method to increment losses for the logged-in user
+        private async Task IncrementLosses(bool tie)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.FindByIdAsync(userId);
+            user.GamesWon++;
+            user.GameHistory.Add(game);
+            await _userManager.UpdateAsync(user);
         }
 
         // Helper method to convert grid position to index
