@@ -16,6 +16,8 @@ namespace Fall2024_Assignment4_CS330.Models
         public string Mode { get; set; } = "Local";
         public string Player1Id { get; set; }
         public string Player2Id { get; set; }
+        public int Player1Time { get; set; }
+        public int Player2Time { get; set; }
         public char CurrentPlayer { get; set; } = 'X';
         public int? RestrictedGrid { get; set; }
 
@@ -64,6 +66,25 @@ namespace Fall2024_Assignment4_CS330.Models
         public void TogglePlayer()
         {
             CurrentPlayer = (CurrentPlayer == 'X') ? 'O' : 'X';
+        }
+
+        public char UpdateTime()
+        {
+            if (CurrentPlayer == 'X')
+            {
+                Player1Time--;
+                if (Player1Time <= 0)
+                    return 'X';
+            }
+
+            else
+            {
+                Player2Time--;
+                if (Player2Time <= 0)
+                    return 'O';
+            }
+
+            return '\0';+
         }
 
         public char CheckGridWinner(int outerRow, int outerCol)
