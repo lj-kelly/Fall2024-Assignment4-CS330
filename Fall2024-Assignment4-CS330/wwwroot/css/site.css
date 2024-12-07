@@ -147,3 +147,56 @@ body {
     border: 1px solid rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(10px);
 }
+
+/* General table styling */
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 18px;
+    text-align: center;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+    /* Table header */
+    .leaderboard-table thead th {
+        background-color: #4CAF50;
+        color: white;
+        font-weight: bold;
+        padding: 10px;
+    }
+
+    /* Table rows */
+    .leaderboard-table tbody tr {
+        border-bottom: 1px solid #ddd;
+        transition: background-color 0.3s;
+    }
+
+        .leaderboard-table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+/* Individual columns */
+.rank-col, .username-col, .games-won-col, .games-lost-col, .winrate-col {
+    padding: 12px;
+}
+
+.rank {
+    font-weight: bold;
+    color: #333;
+}
+
+.username {
+    text-align: left;
+    padding-left: 10px;
+}
+
+.games-won, .games-lost, .winrate {
+    text-align: center;
+}
+
+/* Alternating row colors */
+.leaderboard-table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}

@@ -1,0 +1,26 @@
+﻿<link rel="stylesheet" href="site.css" />
+
+<table class="leaderboard-table">
+    <thead>
+        <tr>
+            <th class="rank-col">Rank</th>
+            <th class="username-col">Username</th>
+            <th class="games-won-col">Games Won</th>
+            <th class="games-lost-col">Games Lost</th>
+            <th class="winrate-col">W/L Ratio</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.Users.Count && i < 50; i++) //Limit to 50
+        {
+            var user = Model.Users[i];
+            <tr class="player-row">
+                <td class="rank">@((i + 1))</td>
+                <td class="username">@user.UserName</td>
+                <td class="games-won">@user.GamesWon</td>
+                <td class="games-lost">@user.GamesLost</td>
+                <td class="winrate">@user.WinRate.ToString("F2")</td>
+            </tr>
+        }
+    </tbody>
+</table>

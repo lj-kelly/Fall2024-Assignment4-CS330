@@ -8,6 +8,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Fall2024_Assignment4_CS330.Services;
 using Azure;
+using Microsoft.AspNetCore.Http;
 
 namespace Fall2024_Assignment4_CS330.Controllers
 {
@@ -16,17 +17,20 @@ namespace Fall2024_Assignment4_CS330.Controllers
         private static TTTModel game = new TTTModel(); // Simulating a session-level game instance
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly OpenAIService _openAIService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         // Tracking restricted grids for each player
         private static int? restrictedGridX = null; // The grid player X is restricted to
         private static int? restrictedGridO = null; // The grid player O is restricted to
 
 
-        public TTTController(UserManager<ApplicationUser> userManager, OpenAIService openAIService)
+        public TTTController(UserManager<ApplicationUser> userManager, OpenAIService openAIService, IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _openAIService = openAIService;
+            _httpContextAccessor = httpContextAccessor;
         }
+
 
         // GET: TTT/Index
         public ActionResult Index()
@@ -130,7 +134,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                     game.GameWinner = boardWinner;
                     game.Status = Status.Complete;
                     if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player1Id ) await IncrementWins(false);
-                    else await IncrementLosses(false);
+                    else await IncrementLosses();
                 }
                 else if (!IsBoardAvailable()) // no playable cells left
                 {
@@ -151,14 +155,14 @@ namespace Fall2024_Assignment4_CS330.Controllers
                         ViewBag.Message = "Player X wins the game!";
                         game.GameWinner = 'X';
                         if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player1Id && game.Mode == "Online") await IncrementWins(false);
-                        else await IncrementLosses(false);
+                        else await IncrementLosses();
                     } 
                     else if (gridsWonByO > gridsWonByX)
                     {
                         ViewBag.Message = "Player O wins the game!";
                         game.GameWinner = 'O';
                         if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player2Id && game.Mode == "Online") await IncrementWins(false);
-                        else await IncrementLosses(false);
+                        else await IncrementLosses();
                     } 
                     else // only a tie if both players won equal grids
                     {
@@ -219,11 +223,11 @@ namespace Fall2024_Assignment4_CS330.Controllers
         }
 
         // Method to increment losses for the logged-in user
-        private async Task IncrementLosses(bool tie)
+        private async Task IncrementLosses()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(userId);
-            user.GamesWon++;
+            user.GamesLost++; // Fix: Increment losses instead of wins
             user.GameHistory.Add(game);
             await _userManager.UpdateAsync(user);
         }
