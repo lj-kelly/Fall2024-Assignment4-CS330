@@ -202,7 +202,10 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 DisplayName = displayName,
                 Email = user.Email,
                 // Add the photo if it exists
-                Photo = user.Photo != null ? new FormFile(new MemoryStream(user.Photo), 0, user.Photo.Length, "photo", "photo") : null
+                Photo = user.Photo != null ? new FormFile(new MemoryStream(user.Photo), 0, user.Photo.Length, "photo", "photo") : null,
+                GamesWon = user.GamesWon,
+                GamesLost = user.GamesLost,
+                gameHistory = user.GameHistory
             };
 
             return View(model);

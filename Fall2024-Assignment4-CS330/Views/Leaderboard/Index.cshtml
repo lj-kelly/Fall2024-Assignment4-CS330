@@ -4,6 +4,7 @@
     <thead>
         <tr>
             <th class="rank-col">Rank</th>
+            <th class="user-photo-col">Photo</th> <!-- New column for the photo -->
             <th class="username-col">Username</th>
             <th class="games-won-col">Games Won</th>
             <th class="games-lost-col">Games Lost</th>
@@ -11,11 +12,21 @@
         </tr>
     </thead>
     <tbody>
-        @for (int i = 0; i < Model.Users.Count && i < 50; i++) //Limit to 50
+        @for (int i = 0; i < Model.Users.Count && i < 50; i++) // Limit to 50
         {
             var user = Model.Users[i];
             <tr class="player-row">
                 <td class="rank">@((i + 1))</td>
+                <td class="user-photo">
+                    @if (user.Photo != null && user.Photo.Length > 0)
+                    {
+                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(user.Photo)" alt="User Photo" class="user-photo-img" />
+                    }
+                    else
+                    {
+                        <img src="~/lib/default-avatar.jpg" alt="Default Avatar" class="user-photo-img" />
+                    }
+                </td>
                 <td class="username">@user.UserName</td>
                 <td class="games-won">@user.GamesWon</td>
                 <td class="games-lost">@user.GamesLost</td>

@@ -25,7 +25,50 @@
     <p>Wins: @Model.GamesWon</p>
     <p>Losses: @Model.GamesLost</p>
     <p>Total Games Played: @Model.GamesPlayed</p>
-    <p>Win Percentage: @Model.WinPercentage</p>
+    <p>Win Percentage: @Model.WinPercentage.ToString("F2")%</p>
+</div>
+
+<div>
+    <h2>Game History</h2>
+    @if (Model.gameHistory != null && Model.gameHistory.Any())
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Game ID</th>
+                    <th>Opponent</th>
+                    <th>Status</th>
+                    <th>Winner</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var game in Model.gameHistory)
+                {
+                    <tr>
+                        <td>@game.Id</td>
+                        <td>
+                            @if (game.Player1Id == User.Identity.Name)
+                            {
+                                @game.Player2Id
+                            }
+                            else
+                            {
+                                @game.Player1Id
+                            }
+                        </td>
+                        <td>@game.Status</td>
+                        <td>@game.GameWinner</td>
+                        <td>@game.GameCreationTime?.ToString("yyyy-MM-dd")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No game history available.</p>
+    }
 </div>
 
 <!-- Delete Account Form -->
