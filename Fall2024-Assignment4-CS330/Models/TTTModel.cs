@@ -84,7 +84,7 @@ namespace Fall2024_Assignment4_CS330.Models
                     return 'O';
             }
 
-            return '\0';+
+            return '\0';
         }
 
         public char CheckGridWinner(int outerRow, int outerCol)
