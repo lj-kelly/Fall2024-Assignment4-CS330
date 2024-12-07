@@ -83,6 +83,10 @@ namespace Fall2024_Assignment4_CS330.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<string>("UserType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -104,11 +108,18 @@ namespace Fall2024_Assignment4_CS330.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("BoardString")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CurrentPlayer")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(1)");
+
+                    b.Property<string>("GameWinner")
                         .IsRequired()
                         .HasColumnType("nvarchar(1)");
 
@@ -124,7 +135,12 @@ namespace Fall2024_Assignment4_CS330.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("RestrictedGrid")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("TTTModel");
                 });
@@ -262,6 +278,13 @@ namespace Fall2024_Assignment4_CS330.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Fall2024_Assignment4_CS330.Models.TTTModel", b =>
+                {
+                    b.HasOne("Fall2024_Assignment4_CS330.Models.ApplicationUser", null)
+                        .WithMany("GameHistory")
+                        .HasForeignKey("ApplicationUserId");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -311,6 +334,11 @@ namespace Fall2024_Assignment4_CS330.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Fall2024_Assignment4_CS330.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("GameHistory");
                 });
 #pragma warning restore 612, 618
         }

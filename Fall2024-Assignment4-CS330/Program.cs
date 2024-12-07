@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Fall2024_Assignment4_CS330.Models;
 using Microsoft.AspNetCore.Builder;
 using Fall2024_Assignment4_CS330.Services;
+using System.Net.WebSockets;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,4 +64,35 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
+app.UseWebSockets();
+app.Map("/ws", async context =>
+{
+    if (context.WebSockets.IsWebSocketRequest)
+    {
+        var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+        await HandleWebSocketCommunication(webSocket);
+    }
+    else
+    {
+        context.Response.StatusCode = 400;
+    }
+});
+
 app.Run();
+
+static async Task HandleWebSocketCommunication(WebSocket w)
+{
+    var buffer = new byte[4096];
+    WebSocketReceiveResult result;
+
+    do
+    {
+        result = await w.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+        var clientMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
+        var serverMessage = Encoding.UTF8.GetBytes($"Server: {clientMessage}");
+        await w.SendAsync(new ArraySegment<byte>(serverMessage), result.MessageType, result.EndOfMessage, CancellationToken.None);
+
+    } while (!result.CloseStatus.HasValue);
+
+    await w.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
+}

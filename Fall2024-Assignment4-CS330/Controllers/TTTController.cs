@@ -8,6 +8,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Fall2024_Assignment4_CS330.Services;
 using Azure;
+using Microsoft.AspNetCore.Http;
 
 namespace Fall2024_Assignment4_CS330.Controllers
 {
@@ -16,17 +17,20 @@ namespace Fall2024_Assignment4_CS330.Controllers
         private static TTTModel game = new TTTModel(); // Simulating a session-level game instance
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly OpenAIService _openAIService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         // Tracking restricted grids for each player
         private static int? restrictedGridX = null; // The grid player X is restricted to
         private static int? restrictedGridO = null; // The grid player O is restricted to
 
 
-        public TTTController(UserManager<ApplicationUser> userManager, OpenAIService openAIService)
+        public TTTController(UserManager<ApplicationUser> userManager, OpenAIService openAIService, IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _openAIService = openAIService;
+            _httpContextAccessor = httpContextAccessor;
         }
+
 
         // GET: TTT/Index
         public ActionResult Index()
@@ -42,14 +46,23 @@ namespace Fall2024_Assignment4_CS330.Controllers
             restrictedGridX = null;
             restrictedGridO = null;
             game.Mode = "Local";
+            game.Status = Status.Active;
+            foreach (var claim in User.Claims)
+            {
+                System.Diagnostics.Debug.WriteLine($"Claim Type: {claim.Type}, Claim Value: {claim.Value}");
+            }
             var userType = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
+            System.Diagnostics.Debug.WriteLine($"-------------");
+            System.Diagnostics.Debug.WriteLine($"{userType}");
             if (userType == "Standard")
             {
+                System.Diagnostics.Debug.WriteLine($"Standard");
                 return View("Index", game);
             }
             else
             {
-                return View("ProIndex", game);
+                System.Diagnostics.Debug.WriteLine($"Pro");
+                return View("Pro_Index", game);
             }
         }
 
@@ -59,6 +72,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
             restrictedGridX = null;
             restrictedGridO = null;
             game.Mode = "ChatGPT";
+            game.Status = Status.Active;
             return View("Index", game);
         }
 
@@ -93,14 +107,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 int nextGrid = GetGridIndex(cellRow, cellCol);
                 if (!IsGridAvailable(nextGrid))
                 {
-                    nextGrid = GetRandomAvailableGrid();
-                    if (nextGrid == -1)
-                    {
-                        ViewBag.Message = "It's a draw!";
-                        game.GameWinner = 'T';
-                        await IncrementWins(true);
-                        return View("Index", game);
-                    }
+                    nextGrid = GetRandomAvailableGrid(); // this will be -1 if there are no moves available
                 }
                 game.RestrictedGrid = nextGrid;
 
@@ -120,17 +127,50 @@ namespace Fall2024_Assignment4_CS330.Controllers
                     ViewBag.Message = $"Grid {GetGridIndex(gridRow, gridCol) + 1} won by Player {gridWinner}!";
                 }
 
-                // Check for winner on the whole board
                 char boardWinner = game.CheckBoardWinner();
-                if (boardWinner != '\0')
+                if (boardWinner != '\0') // 3 big grids in a row
                 {
                     ViewBag.Message = $"Player {boardWinner} wins the game!";
                     game.GameWinner = boardWinner;
-                    await IncrementWins(false);
+                    game.Status = Status.Complete;
+                    if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player1Id ) await IncrementWins(false);
+                    else await IncrementLosses();
                 }
-                else if (!IsBoardAvailable())
+                else if (!IsBoardAvailable()) // no playable cells left
                 {
-                    ViewBag.Message = "It's a draw!";
+                    int gridsWonByX = 0;
+                    int gridsWonByO = 0;
+                    for (int x = 0; x < 3; x++) // check second win condition: more grids won
+                    {
+                        for (int y = 0;  y < 3; y++)
+                        {
+                            char g = game.CheckGridWinner(x, y);
+                            if (g == 'X') gridsWonByX++;
+                            if (g == 'O') gridsWonByO++;
+                        }
+                    }
+
+                    if (gridsWonByX > gridsWonByO)
+                    {
+                        ViewBag.Message = "Player X wins the game!";
+                        game.GameWinner = 'X';
+                        if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player1Id && game.Mode == "Online") await IncrementWins(false);
+                        else await IncrementLosses();
+                    } 
+                    else if (gridsWonByO > gridsWonByX)
+                    {
+                        ViewBag.Message = "Player O wins the game!";
+                        game.GameWinner = 'O';
+                        if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player2Id && game.Mode == "Online") await IncrementWins(false);
+                        else await IncrementLosses();
+                    } 
+                    else // only a tie if both players won equal grids
+                    {
+                        ViewBag.Message = "It's a draw!";
+                        game.GameWinner = 'T';
+                        if (game.Mode == "Online") await IncrementWins(true);
+                    }
+                    game.Status = Status.Complete;
                 }
             }
             else
@@ -140,8 +180,6 @@ namespace Fall2024_Assignment4_CS330.Controllers
 
             return View("Index", game);
         }
-
-
 
         // POST: TTT/GetHint
         [HttpPost]
@@ -168,6 +206,9 @@ namespace Fall2024_Assignment4_CS330.Controllers
         {
             // Wipe the board but keep the current game mode and player details
             game.BoardString = new string('\0', 9); // Set all cells to empty
+            game.CurrentPlayer = 'X';
+            game.GameWinner = '\0';
+            game.Status = Status.Active;
             return RedirectToAction("Index");
         }
 
@@ -176,12 +217,19 @@ namespace Fall2024_Assignment4_CS330.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(userId);
+            user.GamesWon++;
+            user.GameHistory.Add(game);
+            await _userManager.UpdateAsync(user);
+        }
 
-            if (user != null)
-            {
-                user.GamesWon++;
-                await _userManager.UpdateAsync(user);
-            }
+        // Method to increment losses for the logged-in user
+        private async Task IncrementLosses()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.FindByIdAsync(userId);
+            user.GamesLost++; // Fix: Increment losses instead of wins
+            user.GameHistory.Add(game);
+            await _userManager.UpdateAsync(user);
         }
 
         // Helper method to convert grid position to index

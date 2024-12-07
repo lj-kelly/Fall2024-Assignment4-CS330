@@ -11,13 +11,9 @@ namespace Fall2024_Assignment4_CS330.Models
         public int Id { get; set; }
         public char GameWinner { get; set; } = '\0';
 
-        // Flattened representation of all boards for storage
-        public string BoardString { get; set; } = new string('\0', 81); // 9x9 flattened grid
-        public string Mode { get; set; } = "Local";
-        public string Player1Id { get; set; }
-        public string Player2Id { get; set; }
-        public int Player1Time { get; set; }
-        public int Player2Time { get; set; }
+        /// Game data
+        /// Fields that effect the game itself
+        public string BoardString { get; set; } = new string('\0', 81); // 9x9 flattened grid        
         public char CurrentPlayer { get; set; } = 'X';
         public int? RestrictedGrid { get; set; }
 
@@ -66,25 +62,6 @@ namespace Fall2024_Assignment4_CS330.Models
         public void TogglePlayer()
         {
             CurrentPlayer = (CurrentPlayer == 'X') ? 'O' : 'X';
-        }
-
-        public char UpdateTime()
-        {
-            if (CurrentPlayer == 'X')
-            {
-                Player1Time--;
-                if (Player1Time <= 0)
-                    return 'X';
-            }
-
-            else
-            {
-                Player2Time--;
-                if (Player2Time <= 0)
-                    return 'O';
-            }
-
-            return '\0';
         }
 
         public char CheckGridWinner(int outerRow, int outerCol)
