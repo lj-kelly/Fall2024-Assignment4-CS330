@@ -129,8 +129,11 @@ public ActionResult ChatGPT()
                     ViewBag.Message = $"Player {boardWinner} wins the game!";
                     game.GameWinner = boardWinner;
                     game.Status = Status.Complete;
-                    if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player1Id ) await IncrementWins(false);
-                    else await IncrementLosses();
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player1Id && game.Mode == "ChatGPT") await IncrementWins(false);
+                        else await IncrementLosses();
+                    }
                 }
                 else if (!IsBoardAvailable()) // no playable cells left
                 {
@@ -150,15 +153,21 @@ public ActionResult ChatGPT()
                     {
                         ViewBag.Message = "Player X wins the game!";
                         game.GameWinner = 'X';
-                        if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player1Id && game.Mode == "Online") await IncrementWins(false);
-                        else await IncrementLosses();
+                        if (User.Identity.IsAuthenticated)
+                        {
+                            if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player1Id && game.Mode == "ChatGPT") await IncrementWins(false);
+                            else await IncrementLosses();
+                        }
                     } 
                     else if (gridsWonByO > gridsWonByX)
                     {
                         ViewBag.Message = "Player O wins the game!";
                         game.GameWinner = 'O';
-                        if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player2Id && game.Mode == "Online") await IncrementWins(false);
-                        else await IncrementLosses();
+                        if (User.Identity.IsAuthenticated)
+                        {
+                            if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player2Id && game.Mode == "ChatGPT") await IncrementWins(false);
+                            else await IncrementLosses();
+                        }
                     } 
                     else // only a tie if both players won equal grids
                     {
