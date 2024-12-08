@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Fall2024_Assignment4_CS330.Services;
 using Azure;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Fall2024_Assignment4_CS330.Controllers
 {
@@ -18,7 +19,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly OpenAIService _openAIService;
         private readonly IHttpContextAccessor _httpContextAccessor;
-
+        private string _userType; //set the usertype as global variable
         // Tracking restricted grids for each player
         private static int? restrictedGridX = null; // The grid player X is restricted to
         private static int? restrictedGridO = null; // The grid player O is restricted to
@@ -30,7 +31,11 @@ namespace Fall2024_Assignment4_CS330.Controllers
             _openAIService = openAIService;
             _httpContextAccessor = httpContextAccessor;
         }
-
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            _userType = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value ?? "Standard";
+            base.OnActionExecuting(context);
+        }
 
         // GET: TTT/Index
         public ActionResult Index()
@@ -47,23 +52,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
             restrictedGridO = null;
             game.Mode = "Local";
             game.Status = Status.Active;
-            foreach (var claim in User.Claims)
-            {
-                System.Diagnostics.Debug.WriteLine($"Claim Type: {claim.Type}, Claim Value: {claim.Value}");
-            }
-            var userType = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
-            System.Diagnostics.Debug.WriteLine($"-------------");
-            System.Diagnostics.Debug.WriteLine($"{userType}");
-            if (userType == "Standard")
-            {
-                System.Diagnostics.Debug.WriteLine($"Standard");
-                return View("Standard", game);
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine($"Pro");
-                return View("Pro", game);
-            }
+            return View(_userType == "Standard" ? "Standard" : "Pro", game);
         }
             
 public ActionResult ChatGPT()
@@ -99,14 +88,7 @@ public ActionResult ChatGPT()
                 ViewBag.Message = "You are restricted to the highlighted grid.";
                 var userType2 = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
 
-                if (userType2 == "Standard")
-                {
-                    return View("Standard", game);
-                }
-                else
-                {
-                    return View("Pro", game);
-                }
+                return View(_userType == "Standard" ? "Standard" : "Pro", game);
 
 
             }
@@ -191,14 +173,7 @@ public ActionResult ChatGPT()
 
             var userType = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
 
-            if (userType == "Standard")
-            {
-                return View("Standard", game);
-            }
-            else
-            {
-                return View("Pro", game);
-            }
+            return View(_userType == "Standard" ? "Standard" : "Pro", game);
         }
 
         // POST: TTT/GetHint
@@ -220,14 +195,7 @@ public ActionResult ChatGPT()
 
             var userType = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
 
-            if (userType == "Standard")
-            {
-                return View("Standard", game);
-            }
-            else
-            {
-                return View("Pro", game);
-            }
+            return View(_userType == "Standard" ? "Standard" : "Pro", game);
         }
 
         // GET: TTT/Reset
