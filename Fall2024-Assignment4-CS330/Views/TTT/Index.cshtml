@@ -9,6 +9,7 @@
         char self_x_or_o = (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.Player1Id) ? 'X' : 'O';
         opp = self_x_or_o == 'X' ? Model.Player2Id : Model.Player1Id;
     }
+    var time = Model.MaxTime;
 }
 
 <script>
@@ -16,6 +17,7 @@
 </script>
 
 <script>
+    let maxTime = @time;
     // ensure the video does not fully restart upon refresh
     document.addEventListener("DOMContentLoaded", () => {
         const video = document.getElementById("roku-video");

@@ -1,9 +1,12 @@
 using Fall2024_Assignment4_CS330.Data;
 using Fall2024_Assignment4_CS330.Models;
+using Fall2024_Assignment4_CS330.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Net.WebSockets;
+using System.Text;
 
 namespace Fall2024_Assignment4_CS330.Controllers
 {
@@ -54,7 +57,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 existingGame.Status = Status.Active;
 
                 UpdateGameInDb(existingGame);
-                NotifyPlayer(existingGame.Id);
+                NotifyPlayer(existingGame);
                 return View("../TTT/Index", existingGame);
             }
 
@@ -97,7 +100,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 ?? new TTTModel { Status = Status.Failed };
         }
 
-        public IActionResult CreateLobbyHandler(string gameCode, int maxTime)
+        public IActionResult CreateLobbyHandler(string gameCode, string maxTime)
         {
             string? userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
@@ -119,7 +122,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 return RedirectToAction("Index");
             }
 
-            TTTModel game = AddGameToDb(userId, null, gameCode, Publicity.Private, Status.Queued, maxTime);
+            TTTModel game = AddGameToDb(userId, null, gameCode, Publicity.Private, Status.Queued, int.Parse(maxTime));
             return View("../TTT/Index", game);
         }
 
@@ -149,7 +152,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
             existingGame.Status = Status.Active;
 
             UpdateGameInDb(existingGame);
-            NotifyPlayer(existingGame.Id);
+            NotifyPlayer(existingGame);
             return View("../TTT/Index", existingGame);
         }
 
@@ -163,62 +166,30 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 ?? new TTTModel { Status = Status.Failed };
         }
 
-        public void NotifyPlayer(int gameId)
+        public async Task NotifyPlayer(TTTModel game)
         {
-            // find game with this id
-            // send websocket notification to other player
-            // other player's site should refresh page when request received
-            return;
-        }
-
-        private void DatabaseDebug()
-        {
-            /* create table
-            var buildMyTable = @"
-            CREATE TABLE TTTGames (
-            Id INT PRIMARY KEY IDENTITY(1,1),
-            Mode NVARCHAR(50) NOT NULL,
-            Player1Id NVARCHAR(50) NULL,
-            Player2Id NVARCHAR(50) NULL,
-            JoinCode NVARCHAR(50) NULL,
-            Publicity INT NOT NULL,
-            Status INT NOT NULL,
-            MaxTime INT NOT NULL,
-            GameStartTime DATETIME NULL,
-            BoardString NVARCHAR(81) NOT NULL,
-            CurrentPlayer CHAR(1) NOT NULL,
-            RestrictedGrid INT NULL,
-            GameWinner CHAR(1) NOT NULL
-            );";
-            _context.Database.ExecuteSqlRaw(buildMyTable);
-            */
-
-            // fix the table?
-            string sql = @"
-            ALTER TABLE TTTGames ADD
-                Mode NVARCHAR(MAX) NOT NULL DEFAULT 'Online',
-                Player1Id NVARCHAR(MAX) NULL,
-                Player2Id NVARCHAR(MAX) NULL,
-                JoinCode NVARCHAR(MAX) NULL,
-                Publicity INT NOT NULL DEFAULT 0,
-                Status INT NOT NULL DEFAULT 0,
-                MaxTime INT NOT NULL DEFAULT 0,
-                GameStartTime DATETIME NULL,
-                BoardString NVARCHAR(81) NOT NULL DEFAULT REPLICATE('\0', 81),
-                CurrentPlayer CHAR(1) NOT NULL DEFAULT 'X',
-                RestrictedGrid INT NULL,
-                GameWinner CHAR(1) NOT NULL DEFAULT '\0';";
-
-            try
+            string self_id = game.Player2Id;
+            string opp_id = game.Player1Id; // every message sent through home controller will be to player 1
+            if (!WebSocketConnectionManager.ActiveSockets.TryGetValue(opp_id, out var socket))
             {
-                // Execute the SQL command
-                _context.Database.ExecuteSqlRaw(sql);
-                //return Content("Table schema updated successfully.");
+                ViewBag.ErrorMessage = "Unable to establish connection with player: " + opp_id;
+                game.Status = Status.Failed;
+                UpdateGameInDb(game);
+                return;
             }
-            catch (Exception ex)
+
+            if (socket.State == WebSocketState.Open)
             {
-                var a = 1;
-                //return Content($"An error occurred: {ex.Message}");
+                var msg = Encoding.UTF8.GetBytes("Player " + self_id + " has joined the game.");
+                await socket.SendAsync(new ArraySegment<byte>(msg),  WebSocketMessageType.Text, true, CancellationToken.None);
+                return;
+            } 
+            else
+            {
+                ViewBag.ErrorMessage = "Unable to establish connection with player: " + opp_id;
+                game.Status = Status.Failed;
+                UpdateGameInDb(game);
+                return;
             }
         }
     }

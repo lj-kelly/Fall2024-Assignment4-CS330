@@ -69,8 +69,19 @@ app.Map("/ws", async context =>
 {
     if (context.WebSockets.IsWebSocketRequest)
     {
-        var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-        await HandleWebSocketCommunication(webSocket);
+        var socket = await context.WebSockets.AcceptWebSocketAsync();
+        var userId = context.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (userId != null)
+        {
+            WebSocketConnectionManager.AddSocket(userId, socket);
+            await HandleWebSocketCommunication(userId, socket);
+            WebSocketConnectionManager.RemoveSocket(userId);
+        }
+        else
+        {
+            await socket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Unauthorized", CancellationToken.None);
+        }
     }
     else
     {
@@ -80,19 +91,16 @@ app.Map("/ws", async context =>
 
 app.Run();
 
-static async Task HandleWebSocketCommunication(WebSocket w)
+static async Task HandleWebSocketCommunication(string userId, WebSocket socket)
 {
     var buffer = new byte[4096];
-    WebSocketReceiveResult result;
 
-    do
+    while (socket.State == WebSocketState.Open)
     {
-        result = await w.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-        var clientMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
-        var serverMessage = Encoding.UTF8.GetBytes($"Server: {clientMessage}");
-        await w.SendAsync(new ArraySegment<byte>(serverMessage), result.MessageType, result.EndOfMessage, CancellationToken.None);
-
-    } while (!result.CloseStatus.HasValue);
-
-    await w.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
+        var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+        if (result.MessageType == WebSocketMessageType.Close)
+        {
+            await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by user", CancellationToken.None);
+        }
+    }
 }

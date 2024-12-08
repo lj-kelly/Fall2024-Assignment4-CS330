@@ -24,26 +24,26 @@ namespace Fall2024_Assignment4_CS330.Models
         /// Game metadata
         /// fields for storing info about the game in relation to other games
         [Key]
-        public int Id { get; set; }
-        public string Mode { get; set; } = "Unset";
-        public string? Player1Id { get; set; }
-        public string? Player2Id { get; set; }
-        public string? JoinCode { get; set; }
-        public Publicity Publicity { get; set; }
-        public Status Status { get; set; }
-        public int MaxTime { get; set; }
-        public DateTime? GameCreationTime { get; set; } = null;
-        public string? ApplicationUserId { get; set; } = null;
+        public int Id { get; set; } // id of the game itself
+        public string Mode { get; set; } = "Unset"; // Local, ChatGpt, Online
+        public string? Player1Id { get; set; } // for online games only. the player that was in the queue first
+        public string? Player2Id { get; set; } // for online games only. the player that connected to the one in the queue
+        public string? JoinCode { get; set; } // for private online games only.
+        public Publicity Publicity { get; set; } // for online games only.
+        public Status Status { get; set; } // Queued for online games only. other status self explanatory 
+        public int MaxTime { get; set; } // the 'maximum' time each player gets to make all their moves like in chess
+        public DateTime? GameCreationTime { get; set; } = null; // the time the game was added to the queue
+        public string? ApplicationUserId { get; set; } = null; // i have no idea
 
         /// Game data
         /// Fields that effect the game itself
-        public string BoardString { get; set; } = new string('\0', 81); // 9x9 flattened grid        
-        public char CurrentPlayer { get; set; } = 'X';
-        public int? RestrictedGrid { get; set; }
-        public char GameWinner { get; set; } = '\0';
+        public string BoardString { get; set; } = new string('\0', 81); // flattened representation of the board 
+        public char CurrentPlayer { get; set; } = 'X'; // always x or o, x is first and player 1
+        public int? RestrictedGrid { get; set; } // the index of the grid that the current player has to play in
+        public char GameWinner { get; set; } = '\0'; // empty, x, o, or t for a tied game (rare)
 
         [NotMapped]
-        public char[,,,] Board
+        public char[,,,] Board // 4d matrix of cells, referred to by the char of the claimer
         {
             get
             {
@@ -72,7 +72,7 @@ namespace Fall2024_Assignment4_CS330.Models
             }
         }
 
-        public void MakeMove(int outerRow, int outerCol, int innerRow, int innerCol)
+        public void MakeMove(int outerRow, int outerCol, int innerRow, int innerCol) // update the board 
         {
             if (Board[outerRow, outerCol, innerRow, innerCol] == '\0')
             {
@@ -83,13 +83,12 @@ namespace Fall2024_Assignment4_CS330.Models
             }
         }
 
-
         public void TogglePlayer()
         {
             CurrentPlayer = (CurrentPlayer == 'X') ? 'O' : 'X';
         }
 
-        public char CheckGridWinner(int outerRow, int outerCol)
+        public char CheckGridWinner(int outerRow, int outerCol) // look for 3 cells in a row to win a grid
         {
             char[,] grid = new char[3, 3];
             for (int i = 0; i < 3; i++)
@@ -113,7 +112,7 @@ namespace Fall2024_Assignment4_CS330.Models
             return '\0'; // No winner
         }
 
-        public char CheckBoardWinner()
+        public char CheckBoardWinner() // look for 3 grids in a row to win the game
         {
             char[,] board = new char[3, 3];
 
@@ -143,7 +142,7 @@ namespace Fall2024_Assignment4_CS330.Models
             return Board[outerRow, outerCol, innerRow, innerCol] == '\0';
         }
 
-        public bool IsGridPlayable(int outerRow, int outerCol)
+        public bool IsGridPlayable(int outerRow, int outerCol) // playable if there is space and no one won the grid
         {
             // Check if the grid has a winner
             if (CheckGridWinner(outerRow, outerCol) != '\0')
