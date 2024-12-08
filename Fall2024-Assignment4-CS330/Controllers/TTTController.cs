@@ -57,23 +57,23 @@ namespace Fall2024_Assignment4_CS330.Controllers
             if (userType == "Standard")
             {
                 System.Diagnostics.Debug.WriteLine($"Standard");
-                return View("Index", game);
+                return View("Standard", game);
             }
             else
             {
                 System.Diagnostics.Debug.WriteLine($"Pro");
-                return View("Pro_Index", game);
+                return View("Pro", game);
             }
         }
-
-        public ActionResult ChatGPT()
+            
+public ActionResult ChatGPT()
         {
             game = new TTTModel();
             restrictedGridX = null;
             restrictedGridO = null;
             game.Mode = "ChatGPT";
             game.Status = Status.Active;
-            return View("Index", game);
+            return View("Standard", game);
         }
 
         public ActionResult Online()
@@ -82,7 +82,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
             restrictedGridX = null;
             restrictedGridO = null;
             game.Mode = "Online";
-            return View("Index", game);
+            return View("Standard", game);
         }
 
         // POST: TTT/MakeMove
@@ -97,7 +97,18 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 (currentPlayer == 'O' && restrictedGridO.HasValue && restrictedGridO != GetGridIndex(gridRow, gridCol)))
             {
                 ViewBag.Message = "You are restricted to the highlighted grid.";
-                return View("Index", game);
+                var userType2 = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
+
+                if (userType2 == "Standard")
+                {
+                    return View("Standard", game);
+                }
+                else
+                {
+                    return View("Pro", game);
+                }
+
+
             }
 
             // If the move is valid, make the move
@@ -178,7 +189,16 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 ViewBag.Message = "Invalid move. Cell already occupied.";
             }
 
-            return View("Index", game);
+            var userType = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
+
+            if (userType == "Standard")
+            {
+                return View("Standard", game);
+            }
+            else
+            {
+                return View("Pro", game);
+            }
         }
 
         // POST: TTT/GetHint
@@ -198,7 +218,16 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 ViewBag.Hint = "Sorry, but we couldn't fetch your hint.";
             }
 
-            return View("Index", game);
+            var userType = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
+
+            if (userType == "Standard")
+            {
+                return View("Standard", game);
+            }
+            else
+            {
+                return View("Pro", game);
+            }
         }
 
         // GET: TTT/Reset
