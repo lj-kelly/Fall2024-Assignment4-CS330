@@ -103,7 +103,10 @@ namespace Fall2024_Assignment4_CS330.Controllers
             // If the move is valid, make the move
             if (game.Board[gridRow, gridCol, cellRow, cellCol] == '\0')
             {
-                game.MakeMove(gridRow, gridCol, cellRow, cellCol);
+                if (game.Mode == "ChatGPT")
+                    await MakeChatGPTMove(gridRow, gridCol, cellRow, cellCol);
+                else
+                    game.MakeMove(gridRow, gridCol, cellRow, cellCol);
                 int nextGrid = GetGridIndex(cellRow, cellCol);
                 if (!IsGridAvailable(nextGrid))
                 {
@@ -179,6 +182,16 @@ namespace Fall2024_Assignment4_CS330.Controllers
             }
 
             return View("Index", game);
+        }
+
+        private async Task MakeChatGPTMove(int gridRow, int gridCol, int cellRow, int cellCol)
+        {
+            game.MakeMove(gridRow, gridCol, cellRow, cellCol);
+            if (game.CheckBoardWinner() == '\0')
+            {
+                List<int> gptMove = await _openAIService.GetNextMove(game, (gridRow, gridCol));
+                game.MakeMove(cellRow, cellCol, gptMove[0], gptMove[1]);
+            }
         }
 
         // POST: TTT/GetHint

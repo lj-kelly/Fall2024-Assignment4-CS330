@@ -2,20 +2,46 @@
 using System.ComponentModel.DataAnnotations;
 using Fall2024_Assignment4_CS330.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Fall2024_Assignment4_CS330.Models
 {
+    public enum Publicity
+    {
+        Public,
+        Private
+    }
+
+    public enum Status
+    {
+        Queued,
+        Active,
+        Complete,
+        Failed
+    }
+
     public class TTTModel
     {
         [Key]
         public int Id { get; set; }
-        public char GameWinner { get; set; } = '\0';
+        public string Mode { get; set; } = "Unset";
+        public string? Player1Id { get; set; }
+        public string? Player2Id { get; set; }
+        public float Player1Time {  get; set; }
+        public float Player2Time { get; set; }
+        public string? JoinCode { get; set; }
+        public Publicity Publicity { get; set; }
+        public Status Status { get; set; }
+        public int MaxTime { get; set; }
+        public DateTime? GameCreationTime { get; set; } = null;
+        public string? ApplicationUserId { get; set; } = null;
 
         /// Game data
         /// Fields that effect the game itself
         public string BoardString { get; set; } = new string('\0', 81); // 9x9 flattened grid        
         public char CurrentPlayer { get; set; } = 'X';
         public int? RestrictedGrid { get; set; }
+        public char GameWinner { get; set; } = '\0';
 
         [NotMapped]
         public char[,,,] Board

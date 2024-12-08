@@ -73,6 +73,8 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 Publicity = publicity,
                 Status = status,
                 MaxTime = maxTime,
+                Player1Time = maxTime*60,
+                Player2Time = maxTime*60,
                 GameCreationTime = DateTime.Now
             };
 
