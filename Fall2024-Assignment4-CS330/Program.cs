@@ -64,43 +64,4 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
-app.UseWebSockets();
-app.Map("/ws", async context =>
-{
-    if (context.WebSockets.IsWebSocketRequest)
-    {
-        var socket = await context.WebSockets.AcceptWebSocketAsync();
-        var userId = context.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-        if (userId != null)
-        {
-            WebSocketConnectionManager.AddSocket(userId, socket);
-            await HandleWebSocketCommunication(userId, socket);
-            WebSocketConnectionManager.RemoveSocket(userId);
-        }
-        else
-        {
-            await socket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Unauthorized", CancellationToken.None);
-        }
-    }
-    else
-    {
-        context.Response.StatusCode = 400;
-    }
-});
-
 app.Run();
-
-static async Task HandleWebSocketCommunication(string userId, WebSocket socket)
-{
-    var buffer = new byte[4096];
-
-    while (socket.State == WebSocketState.Open)
-    {
-        var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-        if (result.MessageType == WebSocketMessageType.Close)
-        {
-            await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by user", CancellationToken.None);
-        }
-    }
-}

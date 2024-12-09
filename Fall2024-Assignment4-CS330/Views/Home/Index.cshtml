@@ -19,71 +19,60 @@
 <div class="text-center">
     <h1 class="display-4">Welcome to Tic Tac Toe Heaven</h1>
     <div class="text-center">
-        <a href="@Url.Action("Local", "TTT")" class="btn btn-success play-button">Play Locally</a>
-        <a href="@Url.Action("ChatGPT", "TTT")" class="btn btn-success play-button">Play AI</a>
-        <button class="btn btn-success play-button" data-bs-toggle="modal" data-bs-target="#onlineModal">Play Online</button>
+        <button class="btn btn-success play-button" data-bs-toggle="modal" data-bs-target="#playModal">Play</button>
     </div>
 </div>
 
 <!-- Online Gameplay Selector Modal -->
-<div class="modal fade" id="onlineModal" tabindex="-1" aria-labelledby="onlineModalLabel" aria-hidden="true">
+<div class="modal fade" id="playModal" tabindex="-1" aria-labelledby="playModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="onlineModalLabel">Play Online</h5>
+                <h5 class="modal-title" id="playModalLabel">Select a Mode</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <ul class="nav nav-tabs" id="onlineTab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="queue-tab" data-bs-toggle="tab" data-bs-target="#queue" type="button" role="tab" aria-controls="queue" aria-selected="true">Queue for Game</button>
+                        <button class="nav-link active" id="local-tab" data-bs-toggle="tab" data-bs-target="#local" type="button" role="tab" aria-controls="local" aria-selected="true">Local</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="create-tab" data-bs-toggle="tab" data-bs-target="#create" type="button" role="tab" aria-controls="create" aria-selected="false">Create Lobby</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="join-tab" data-bs-toggle="tab" data-bs-target="#join" type="button" role="tab" aria-controls="join" aria-selected="false">Join Lobby</button>
+                        <button class="nav-link" id="chatgpt-tab" data-bs-toggle="tab" data-bs-target="#chatgpt" type="button" role="tab" aria-controls="chatgpt" aria-selected="false">ChatGPT</button>
                     </li>
                 </ul>
-                <div class="tab-content mt-3" id="onlineTabContent">
-                    <!-- Queue Tab -->
-                    <div class="tab-pane fade show active" id="queue" role="tabpanel" aria-labelledby="queue-tab">
-                        <h5>Queue for a Game</h5>
-                        <p>Click the button below to search for a public game. If no games are found, a new one will be created.</p>
-                        <form method="post" action="@Url.Action("QueueHandler", "Home")">
-                            <button type="submit" class="btn btn-primary">Queue Up</button>
-                        </form>
-                    </div>
-                    <!-- Create Lobby Tab -->
-                    <div class="tab-pane fade" id="create" role="tabpanel" aria-labelledby="create-tab">
-                        <h5>Create a Lobby</h5>
-                        <form method="post" action="@Url.Action("CreateLobbyHandler", "Home")">
+                <div class="tab-content mt-3" id="localTabContent">
+                    <div class="tab-pane fade show active" id="local" role="tabpanel" aria-labelledby="local-tab">
+                        <h5>Play Locally</h5>
+                        <p>Play a game against someone on the same device.</p>
+                        <form method="post" action="@Url.Action("Local", "TTT")">
                             <div class="mb-3">
-                                <label for="gameCode" class="form-label">Game Code (up to 10 characters)</label>
-                                <input type="text" class="form-control" id="gameCode" name="gameCode" maxlength="10" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="timeLimit" class="form-label">Player Timer</label>
-                                <select class="form-select" id="timeLimit" name="timeLimit" required>
+                                <label for="localTimeLimit" class="form-label">Max Player Time</label>
+                                <select class="form-select" id="localTimeLimit" name="localTimeLimit" required>
                                     <option value="2">2 Minutes</option>
                                     <option value="5">5 Minutes</option>
-                                    <option value="10">10 Minutes</option>
+                                    <option selected value="10">10 Minutes</option>
                                     <option value="20">20 Minutes</option>
                                     <option value="60">60 Minutes</option>
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-primary">Create Lobby</button>
+                            <button type="submit" class="btn btn-primary">Start</button>
                         </form>
                     </div>
-                    <!-- Join Lobby Tab -->
-                    <div class="tab-pane fade" id="join" role="tabpanel" aria-labelledby="join-tab">
-                        <h5>Join a Lobby</h5>
-                        <form method="post" action="@Url.Action("JoinLobbyHandler", "Home")">
+                    <div class="tab-pane fade" id="chatgpt" role="tabpanel" aria-labelledby="chatgpt-tab">
+                        <h5>Play ChatGPT</h5>
+                        <p>Test your skills against ChatGPT!</p>
+                        <form method="post" action="@Url.Action("ChatGPT", "TTT")">
                             <div class="mb-3">
-                                <label for="joinCode" class="form-label">Enter Game Code</label>
-                                <input type="text" class="form-control" id="joinCode" name="joinCode" required>
+                                <label for="chatgptTimeLimit" class="form-label">Max Player Time</label>
+                                <select class="form-select" id="chatgptTimeLimit" name="chatgptTimeLimit" required>
+                                    <option value="2">2 Minutes</option>
+                                    <option value="5">5 Minutes</option>
+                                    <option selected value="10">10 Minutes</option>
+                                    <option value="20">20 Minutes</option>
+                                    <option value="60">60 Minutes</option>
+                                </select>
                             </div>
-                            <button type="submit" class="btn btn-primary">Join Lobby</button>
+                            <button type="submit" class="btn btn-primary">Start</button>
                         </form>
                     </div>
                 </div>
