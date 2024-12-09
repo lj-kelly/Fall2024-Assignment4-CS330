@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Fall2024_Assignment4_CS330.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography.X509Certificates;
-
+using System.Timers;
 namespace Fall2024_Assignment4_CS330.Models
 {
     public enum Mode
@@ -87,7 +87,7 @@ namespace Fall2024_Assignment4_CS330.Models
             CurrentPlayer = (CurrentPlayer == 'X') ? 'O' : 'X';
         }
 
-        public char CheckGridWinner(int outerRow, int outerCol) // look for 3 cells in a row to win a grid
+        public char CheckGridWinner(int outerRow, int outerCol)
         {
             char[,] grid = new char[3, 3];
             for (int i = 0; i < 3; i++)
@@ -111,7 +111,7 @@ namespace Fall2024_Assignment4_CS330.Models
             return '\0'; // No winner
         }
 
-        public char CheckBoardWinner() // look for 3 grids in a row to win the game
+        public char CheckBoardWinner()
         {
             char[,] board = new char[3, 3];
 
@@ -141,7 +141,7 @@ namespace Fall2024_Assignment4_CS330.Models
             return Board[outerRow, outerCol, innerRow, innerCol] == '\0';
         }
 
-        public bool IsGridPlayable(int outerRow, int outerCol) // playable if there is space and no one won the grid
+        public bool IsGridPlayable(int outerRow, int outerCol)
         {
             // Check if the grid has a winner
             if (CheckGridWinner(outerRow, outerCol) != '\0')

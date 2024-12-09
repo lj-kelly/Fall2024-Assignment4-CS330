@@ -32,6 +32,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<OpenAIService>();
+builder.Services.AddScoped<GameTimerService>();
 
 var openAIKey = builder.Configuration["OpenAIKey"];
 var openAIEndpoint = builder.Configuration["OpenAIEndpoint"];

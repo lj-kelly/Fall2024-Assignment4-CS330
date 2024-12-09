@@ -10,6 +10,7 @@ using Fall2024_Assignment4_CS330.Services;
 using Azure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Timers;
 
 namespace Fall2024_Assignment4_CS330.Controllers
 {
@@ -19,16 +20,20 @@ namespace Fall2024_Assignment4_CS330.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly OpenAIService _openAIService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private GameTimerService _gameTimerService;
         private string _userType; //set the usertype as global variable
+        private System.Timers.Timer _timer;
         // Tracking restricted grids for each player
         private static int? restrictedGridX = null; // The grid player X is restricted to
-        private static int? restrictedGridO = null; // The grid player O is restricted to
+        private static int? restrictedGridO = null; // The grid player O is restricted 
 
-        public TTTController(UserManager<ApplicationUser> userManager, OpenAIService openAIService, IHttpContextAccessor httpContextAccessor)
+
+        public TTTController(UserManager<ApplicationUser> userManager, OpenAIService openAIService, IHttpContextAccessor httpContextAccessor, GameTimerService gameTimerService)
         {
             _userManager = userManager;
             _openAIService = openAIService;
-            _httpContextAccessor = httpContextAccessor;
+            _httpContextAccessor = httpContextAccessor;          
+            _gameTimerService = gameTimerService;
         }
         public override void OnActionExecuting(ActionExecutingContext context)
         {
@@ -51,9 +56,11 @@ namespace Fall2024_Assignment4_CS330.Controllers
             restrictedGridO = null;
             game.Mode = Mode.Local;
             game.Status = Status.Active;
-            game.MaxTime = maxTime;
-            game.Player1Time = maxTime * 60;
-            game.Player2Time = maxTime * 60;
+            game.MaxTime = 300;
+            game.Player1Time = 300;
+            game.Player2Time = 300;
+
+            _gameTimerService.AddGame(game);
             return View(_userType == "Standard" ? "Standard" : "Pro", game);
         }
             
@@ -65,9 +72,16 @@ namespace Fall2024_Assignment4_CS330.Controllers
             restrictedGridO = null;
             game.Mode = Mode.ChatGPT;
             game.Status = Status.Active;
-            game.MaxTime = maxTime;
-            game.Player1Time = maxTime * 60;
-            game.Player2Time= maxTime * 60;
+            return View("Standard", game);
+        }
+
+        public ActionResult Online()
+        {
+            game = new TTTModel();
+            restrictedGridX = null;
+            restrictedGridO = null;
+            game.Mode = "Online";
+            _gameTimerService.addGame(game);
             return View("Standard", game);
         }
 
@@ -75,6 +89,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
         [HttpPost]
         public async Task<ActionResult> MakeMove(int gridRow, int gridCol, int cellRow, int cellCol)
         {
+            Console.WriteLine($"Player 1 Time: {game.Player1Time}s, Player 2 Time: {game.Player2Time}s");
             // Determine which player is making the move
             char currentPlayer = game.CurrentPlayer;
 

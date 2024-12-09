@@ -122,21 +122,60 @@
             }
         </table>
     </div>
-    <div class="hintDiv p-3">
-        <form method="post" action="@Url.Action("GetHint", "TTT")">
-            <button type="submit" id="getHintButton">Get a Hint</button>
-        </form>
-        <p id="hintText">
-            @ViewBag.Hint
-        </p>
-    </div>
-</div>
-<div class="decorative-background p-4 rounded mb-3">
-    @if (ViewBag.Message != null)
+    @if (Model.Mode != "Online")
     {
-        <h3 class="text-secondary">@ViewBag.Message</h3>
+        <div class="hintDiv p-3">
+            <form method="post" action="@Url.Action("GetHint", "TTT")">
+                <button type="submit" id="getHintButton">Get a Hint</button>
+            </form>
+            <p id="hintText">
+                @ViewBag.Hint
+            </p>
+        </div>
     }
-    <form method="get" action="@Url.Action("Reset", "TTT")">
-        <button class="btn btn-primary" type="submit" style="margin-top: 20px;">Restart Game</button>
-    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Update game status every 200ms (0.2 seconds)
+        setInterval(function () {
+            $.ajax({
+                url: '@Url.Action("GetGameStatus", "TTT")', // URL to fetch game status
+                method: 'GET',
+                success: function (data) {
+                    // Update the timer display
+                    $('#player1-time').text(data.player1Time.toFixed(1) + "s");
+                    $('#player2-time').text(data.player2Time.toFixed(1) + "s");
+
+                    // Update the message if there is one
+                    if (data.message) {
+                        $('#game-message').text(data.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching game status:", error);
+                }
+            });
+        }, 200);
+    });
+</script>
+<div class="decorative-background p-4 rounded mb-3">
+    <div id="game-message">
+        @if (ViewBag.Message != null)
+        {
+            <h3 class="text-secondary">@ViewBag.Message</h3>
+        }
+    </div>
+
+    <div id="timer-display">
+        <p>Player 1 Time: <span id="player1-time">@Model.Player1Time.ToString("F1")</span></p>
+        <p>Player 2 Time: <span id="player2-time">@Model.Player2Time.ToString("F1")</span></p>
+    </div>
+    @if (Model.Mode != "Online")
+    {
+        <form method="get" action="@Url.Action("Reset", "TTT")">
+            <button class="btn btn-primary" type="submit" style="margin-top: 20px;">Restart Game</button>
+        </form>
+    }
 </div>
