@@ -4,11 +4,7 @@
     var playerColor = Model.CurrentPlayer == 'X' ? "text-danger" : "text-info";
     var pointerEvents = Model.Status == Status.Active ? "all" : "none";
     string opp = "";
-    if (Model.Mode == "Online")
-    {
-        char self_x_or_o = (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.Player1Id) ? 'X' : 'O';
-        opp = self_x_or_o == 'X' ? Model.Player2Id : Model.Player1Id;
-    }
+    var time = Model.MaxTime;
 }
 
 <script>
@@ -16,6 +12,7 @@
 </script>
 
 <script>
+    let maxTime = @time;
     // ensure the video does not fully restart upon refresh
     document.addEventListener("DOMContentLoaded", () => {
         const video = document.getElementById("roku-video");
@@ -62,16 +59,6 @@
 <div class="container d-flex flex-column justify-content-center align-items-center text-center">
     <div class="decorative-background p-4 rounded mb-3">
         <h2 class="text-primary m-0">Tic Tac Toe - @Model.Mode - <span class="@playerColor">@Model.CurrentPlayer</span></h2>
-        @if (Model.Status == Status.Queued)
-        {   
-            var s = "";
-            if (Model.Publicity == Publicity.Private) s = "Join Code: " + Model.JoinCode;
-            <h4 class="text-secondary">In the queue... @s</h4>
-        }
-        else if (Model.Status == Status.Active && Model.Mode == "Online")
-        {
-            <h4 class="text-secondary">Connected to player: @opp</h4>
-        }
     </div>
     <div>
         <table class="board" border="1" style="border-collapse: collapse; width: 450px; height: 450px; text-align: center; pointer-events: @pointerEvents;">

@@ -49,12 +49,13 @@ namespace Fall2024_Assignment4_CS330.Controllers
 
 
         // GET: TTT/Local
-        public ActionResult Local()
+        public ActionResult Local(string localTimeLimit)
         {
+            int maxTime = int.Parse(localTimeLimit);
             game = new TTTModel();
             restrictedGridX = null;
             restrictedGridO = null;
-            game.Mode = "Local";
+            game.Mode = Mode.Local;
             game.Status = Status.Active;
             game.MaxTime = 300;
             game.Player1Time = 300;
@@ -64,12 +65,13 @@ namespace Fall2024_Assignment4_CS330.Controllers
             return View(_userType == "Standard" ? "Standard" : "Pro", game);
         }
             
-public ActionResult ChatGPT()
+        public ActionResult ChatGPT(string chatgptTimeLimit)
         {
+            int maxTime = int.Parse(chatgptTimeLimit);
             game = new TTTModel();
             restrictedGridX = null;
             restrictedGridO = null;
-            game.Mode = "ChatGPT";
+            game.Mode = Mode.ChatGPT;
             game.Status = Status.Active;
             return View("Standard", game);
         }
@@ -80,6 +82,7 @@ public ActionResult ChatGPT()
             restrictedGridX = null;
             restrictedGridO = null;
             game.Mode = "Online";
+            _gameTimerService.addGame(game);
             return View("Standard", game);
         }
 
@@ -108,8 +111,12 @@ public ActionResult ChatGPT()
             {
                 if (game.Mode == "ChatGPT")
                     await MakeChatGPTMove(gridRow, gridCol, cellRow, cellCol);
+                }
                 else
+                {
                     game.MakeMove(gridRow, gridCol, cellRow, cellCol);
+                }
+              
                 int nextGrid = GetGridIndex(cellRow, cellCol);
                 if (!IsGridAvailable(nextGrid))
                 {
@@ -141,7 +148,7 @@ public ActionResult ChatGPT()
                     game.Status = Status.Complete;
                     if (User.Identity.IsAuthenticated)
                     {
-                        if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player1Id && game.Mode == "ChatGPT") await IncrementWins(false);
+                        if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player1Id && game.Mode == Mode.ChatGPT) await IncrementWins(false);
                         else await IncrementLosses();
                     }
                 }
@@ -165,7 +172,7 @@ public ActionResult ChatGPT()
                         game.GameWinner = 'X';
                         if (User.Identity.IsAuthenticated)
                         {
-                            if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player1Id && game.Mode == "ChatGPT") await IncrementWins(false);
+                            if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player1Id && game.Mode == Mode.ChatGPT) await IncrementWins(false);
                             else await IncrementLosses();
                         }
                     } 
@@ -175,7 +182,7 @@ public ActionResult ChatGPT()
                         game.GameWinner = 'O';
                         if (User.Identity.IsAuthenticated)
                         {
-                            if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player2Id && game.Mode == "ChatGPT") await IncrementWins(false);
+                            if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player2Id && game.Mode == Mode.ChatGPT) await IncrementWins(false);
                             else await IncrementLosses();
                         }
                     } 
@@ -183,7 +190,7 @@ public ActionResult ChatGPT()
                     {
                         ViewBag.Message = "It's a draw!";
                         game.GameWinner = 'T';
-                        if (game.Mode == "Online") await IncrementWins(true);
+                        if (game.Mode == Mode.ChatGPT) await IncrementWins(true);
                     }
                     game.Status = Status.Complete;
                 }
@@ -312,20 +319,6 @@ public ActionResult ChatGPT()
 
             Random rand = new Random();
             return availableGrids[rand.Next(availableGrids.Count)];
-        }
-
-        // Method used by AJAX to update clock in real time. If winner by timeout, ViewBag.Message used to declare iwnner
-        public async Task<IActionResult> GetGameStatus()
-        {
-            // Assuming you are updating the game status and timer here
-            var gameStatus = new
-            {
-                Player1Time = game.Player1Time,
-                Player2Time = game.Player2Time,
-                Message = ViewBag.Message
-            };
-
-            return Json(gameStatus);
         }
     }
 }

@@ -6,10 +6,10 @@ using System.Security.Cryptography.X509Certificates;
 using System.Timers;
 namespace Fall2024_Assignment4_CS330.Models
 {
-    public enum Publicity
+    public enum Mode
     {
-        Public,
-        Private
+        Local,
+        ChatGPT
     }
 
     public enum Status
@@ -22,29 +22,31 @@ namespace Fall2024_Assignment4_CS330.Models
 
     public class TTTModel
     {
+        /// game metadata
+        /// fields that describe the game
         [Key]
         public int Id { get; set; }
-        public string Mode { get; set; } = "Unset";
+        public Mode Mode { get; set; } = Mode.Local;
         public string? Player1Id { get; set; }
         public string? Player2Id { get; set; }
         public double Player1Time {  get; set; }
         public double Player2Time { get; set; }
-        public string? JoinCode { get; set; }
         public Publicity Publicity { get; set; }
         public Status Status { get; set; }
         public int MaxTime { get; set; }
         public DateTime? GameCreationTime { get; set; } = null;
-        public string? ApplicationUserId { get; set; } = null;
+        public char GameWinner { get; set; } = '\0'; // empty, x, o, or t for a tied game (rare)
 
         /// Game data
-        /// Fields that effect the game itself
-        public string BoardString { get; set; } = new string('\0', 81); // 9x9 flattened grid        
-        public char CurrentPlayer { get; set; } = 'X';
-        public int? RestrictedGrid { get; set; }
-        public char GameWinner { get; set; } = '\0';
+        /// Fields that effect the game itself and update frequently
+        public string BoardString { get; set; } = new string('\0', 81); // flattened representation of the board 
+        public char CurrentPlayer { get; set; } = 'X'; // always x or o, x is first and player 1
+        public int? RestrictedGrid { get; set; } = null; // the index of the grid that the current player has to play in
+        public float Player1Time { get; set; } = 600; // in seconds
+        public float Player2Time { get; set; } = 600; // in seconds
 
         [NotMapped]
-        public char[,,,] Board
+        public char[,,,] Board // 4d matrix of cells, referred to by the char of the claimer
         {
             get
             {
@@ -73,8 +75,7 @@ namespace Fall2024_Assignment4_CS330.Models
             }
         }
 
-
-        public void MakeMove(int outerRow, int outerCol, int innerRow, int innerCol)
+        public void MakeMove(int outerRow, int outerCol, int innerRow, int innerCol) // update the board 
         {
             if (Board[outerRow, outerCol, innerRow, innerCol] == '\0')
             {
@@ -84,7 +85,6 @@ namespace Fall2024_Assignment4_CS330.Models
                 TogglePlayer();
             }
         }
-
 
         public void TogglePlayer()
         {
@@ -166,23 +166,6 @@ namespace Fall2024_Assignment4_CS330.Models
             }
 
             return false; // Grid is not playable if no empty cells are found
-        }
-
-        public void HandleTimeout()
-        {
-            Console.WriteLine("We have a winner...");
-            if (Player1Time <= 0)
-            {
-                Player1Time = 0;
-                GameWinner = 'O';
-            }
-
-            else
-            {   
-                Player2Time = 0;
-                GameWinner = 'X';
-            }
-            Status = Status.Complete;
         }
     }
 }
