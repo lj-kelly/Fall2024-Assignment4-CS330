@@ -27,8 +27,7 @@ namespace Fall2024_Assignment4_CS330.Models
         [Key]
         public int Id { get; set; }
         public Mode Mode { get; set; } = Mode.Local;
-        public string? Player1Id { get; set; }
-        public string? Player2Id { get; set; }
+        public string? PlayerId { get; set; }
         public Status Status { get; set; } = Status.Active;
         public int MaxTime { get; set; } = 10; // in minutes
         public DateTime? GameCreationTime { get; set; } = null;

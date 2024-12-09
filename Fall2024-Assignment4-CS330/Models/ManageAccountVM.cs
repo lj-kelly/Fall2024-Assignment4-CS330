@@ -12,6 +12,7 @@ namespace Fall2024_Assignment4_CS330.Models
         public string Email { get; set; } // Include any other properties you want to manage
         public int GamesWon { get; set; }
         public int GamesLost { get; set; }
+        public int GamesTied { get; set; }
         public int GamesPlayed => GamesLost + GamesWon;
         public int WinPercentage => GamesPlayed == 0 ? 0 : (int)((double)GamesWon / GamesPlayed * 100);
         public IFormFile? Photo { get; set; }

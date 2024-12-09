@@ -10,6 +10,7 @@ namespace Fall2024_Assignment4_CS330.Models
         }
         public int GamesWon { get; set; }
         public int GamesLost { get; set; }
+        public int GamesTied { get; set; }
         public string UserType { get; set; }
         public byte[]? Photo { get; set; }
         public List<TTTModel>? GameHistory { get; set; }

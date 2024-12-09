@@ -9,8 +9,7 @@
 <div>
     <h2>Game Details</h2>
     <p><strong>Game ID:</strong> @Model.Id</p>
-    <p><strong>Player 1 ID:</strong> @Model.Player1Id</p>
-    <p><strong>Player 2 ID:</strong> @Model.Player2Id</p>
+    <p><strong>Player ID:</strong> @Model.PlayerId</p>
     <p><strong>Mode:</strong> @Model.Mode</p>
     <p><strong>Winner:</strong> @(Model.GameWinner == '\0' ? "No Winner" : Model.GameWinner.ToString())</p>
 </div>

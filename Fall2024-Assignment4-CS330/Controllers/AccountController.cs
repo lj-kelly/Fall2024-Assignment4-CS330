@@ -205,6 +205,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 Photo = user.Photo != null ? new FormFile(new MemoryStream(user.Photo), 0, user.Photo.Length, "photo", "photo") : null,
                 GamesWon = user.GamesWon,
                 GamesLost = user.GamesLost,
+                GamesTied = user.GamesTied,
                 gameHistory = user.GameHistory
             };
 

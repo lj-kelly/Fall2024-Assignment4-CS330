@@ -24,7 +24,6 @@ namespace Fall2024_Assignment4_CS330.Controllers
         private static int? restrictedGridX = null; // The grid player X is restricted to
         private static int? restrictedGridO = null; // The grid player O is restricted to
 
-
         public TTTController(UserManager<ApplicationUser> userManager, OpenAIService openAIService, IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
@@ -42,7 +41,6 @@ namespace Fall2024_Assignment4_CS330.Controllers
         {
             return View(game);
         }
-
 
         // GET: TTT/Local
         public ActionResult Local(string localTimeLimit)
@@ -88,8 +86,6 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 var userType2 = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
 
                 return View(_userType == "Standard" ? "Standard" : "Pro", game);
-
-
             }
 
             // If the move is valid, make the move
@@ -133,10 +129,9 @@ namespace Fall2024_Assignment4_CS330.Controllers
                     ViewBag.Message = $"Player {boardWinner} wins the game!";
                     game.GameWinner = boardWinner;
                     game.Status = Status.Complete;
-                    if (User.Identity.IsAuthenticated)
-                    {
-                        if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player1Id && game.Mode == Mode.ChatGPT) await IncrementWins(false);
-                        else await IncrementLosses();
+                    if (game.Mode == Mode.ChatGPT) {
+                        if (boardWinner == 'X') await IncrementWins();
+                        await IncrementLosses();
                     }
                 }
                 else if (!IsBoardAvailable()) // no playable cells left
@@ -157,27 +152,22 @@ namespace Fall2024_Assignment4_CS330.Controllers
                     {
                         ViewBag.Message = "Player X wins the game!";
                         game.GameWinner = 'X';
-                        if (User.Identity.IsAuthenticated)
-                        {
-                            if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player1Id && game.Mode == Mode.ChatGPT) await IncrementWins(false);
-                            else await IncrementLosses();
-                        }
+                        if (game.Mode == Mode.ChatGPT) await IncrementWins();
                     } 
                     else if (gridsWonByO > gridsWonByX)
                     {
                         ViewBag.Message = "Player O wins the game!";
                         game.GameWinner = 'O';
-                        if (User.Identity.IsAuthenticated)
-                        {
-                            if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == game.Player2Id && game.Mode == Mode.ChatGPT) await IncrementWins(false);
-                            else await IncrementLosses();
-                        }
+                        if (game.Mode == Mode.ChatGPT) await IncrementLosses();
                     } 
                     else // only a tie if both players won equal grids
                     {
                         ViewBag.Message = "It's a draw!";
                         game.GameWinner = 'T';
-                        if (game.Mode == Mode.ChatGPT) await IncrementWins(true);
+                        if (game.Mode == Mode.ChatGPT)
+                        {
+                            await IncrementTies();
+                        }
                     }
                     game.Status = Status.Complete;
                 }
@@ -232,11 +222,13 @@ namespace Fall2024_Assignment4_CS330.Controllers
             game.CurrentPlayer = 'X';
             game.GameWinner = '\0';
             game.Status = Status.Active;
+            game.Player1Time = game.MaxTime * 60;
+            game.Player2Time = game.MaxTime * 60;
             return RedirectToAction("Index");
         }
 
         // Method to increment wins for the logged-in user
-        private async Task IncrementWins(bool tie)
+        private async Task IncrementWins()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(userId);
@@ -250,7 +242,16 @@ namespace Fall2024_Assignment4_CS330.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(userId);
-            user.GamesLost++; // Fix: Increment losses instead of wins
+            user.GamesLost++;
+            user.GameHistory.Add(game);
+            await _userManager.UpdateAsync(user);
+        }
+
+        private async Task IncrementTies()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.FindByIdAsync(userId);
+            user.GamesTied++;
             user.GameHistory.Add(game);
             await _userManager.UpdateAsync(user);
         }
