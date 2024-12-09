@@ -86,7 +86,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 (currentPlayer == 'O' && restrictedGridO.HasValue && restrictedGridO != GetGridIndex(gridRow, gridCol)))
             {
                 ViewBag.Message = "You are restricted to the highlighted grid.";
-                var userType2 = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
+                //var userType2 = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
 
                 return View(_userType == "Standard" ? "Standard" : "Pro", game);
             }
@@ -180,7 +180,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 ViewBag.Message = "Invalid move. Cell already occupied.";
             }
 
-            var userType = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
+            //var userType = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
 
             return View(_userType == "Standard" ? "Standard" : "Pro", game);
         }
@@ -212,7 +212,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 ViewBag.Hint = "Sorry, but we couldn't fetch your hint.";
             }
 
-            var userType = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
+            //var userType = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
 
             return View(_userType == "Standard" ? "Standard" : "Pro", game);
         }
