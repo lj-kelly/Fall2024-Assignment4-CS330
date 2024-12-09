@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Fall2024_Assignment4_CS330.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Fall2024_Assignment4_CS330.Models
 {
@@ -21,19 +22,19 @@ namespace Fall2024_Assignment4_CS330.Models
 
     public class TTTModel
     {
-        /// Game metadata
-        /// fields for storing info about the game in relation to other games
         [Key]
-        public int Id { get; set; } // id of the game itself
-        public string Mode { get; set; } = "Unset"; // Local, ChatGpt, Online
-        public string? Player1Id { get; set; } // for online games only. the player that was in the queue first
-        public string? Player2Id { get; set; } // for online games only. the player that connected to the one in the queue
-        public string? JoinCode { get; set; } // for private online games only.
-        public Publicity Publicity { get; set; } // for online games only.
-        public Status Status { get; set; } // Queued for online games only. other status self explanatory 
-        public int MaxTime { get; set; } // the 'maximum' time each player gets to make all their moves like in chess
-        public DateTime? GameCreationTime { get; set; } = null; // the time the game was added to the queue
-        public string? ApplicationUserId { get; set; } = null; // i have no idea
+        public int Id { get; set; }
+        public string Mode { get; set; } = "Unset";
+        public string? Player1Id { get; set; }
+        public string? Player2Id { get; set; }
+        public float Player1Time {  get; set; }
+        public float Player2Time { get; set; }
+        public string? JoinCode { get; set; }
+        public Publicity Publicity { get; set; }
+        public Status Status { get; set; }
+        public int MaxTime { get; set; }
+        public DateTime? GameCreationTime { get; set; } = null;
+        public string? ApplicationUserId { get; set; } = null;
 
         /// Game data
         /// Fields that effect the game itself
