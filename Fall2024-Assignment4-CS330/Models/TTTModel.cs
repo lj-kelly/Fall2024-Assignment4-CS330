@@ -29,7 +29,7 @@ namespace Fall2024_Assignment4_CS330.Models
         public Mode Mode { get; set; } = Mode.Local;
         public string? PlayerId { get; set; }
         public Status Status { get; set; } = Status.Active;
-        public int MaxTime { get; set; } = 10; // in minutes
+        public int MaxTime { get; set; } = 600; // in seconds
         public DateTime? GameCreationTime { get; set; } = null;
         public char GameWinner { get; set; } = '\0'; // empty, x, o, or t for a tied game (rare)
 
@@ -80,6 +80,22 @@ namespace Fall2024_Assignment4_CS330.Models
                 Board = tempBoards;
                 TogglePlayer();
             }
+        }
+
+        public void HandleTimeout()
+        {
+            Console.WriteLine("We have a winner...");
+            if (Player1Time <= 0)
+            {
+                Player1Time = 0;
+                GameWinner = 'O';
+            }
+            else
+            {
+                Player2Time = 0;
+                GameWinner = 'X';
+            }
+            Status = Status.Complete;
         }
 
         public void TogglePlayer()

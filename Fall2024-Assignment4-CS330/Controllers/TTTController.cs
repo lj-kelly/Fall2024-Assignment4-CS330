@@ -25,8 +25,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
         private System.Timers.Timer _timer;
         // Tracking restricted grids for each player
         private static int? restrictedGridX = null; // The grid player X is restricted to
-        private static int? restrictedGridO = null; // The grid player O is restricted 
-
+        private static int? restrictedGridO = null; // The grid player O is restricted to
 
         public TTTController(UserManager<ApplicationUser> userManager, OpenAIService openAIService, IHttpContextAccessor httpContextAccessor, GameTimerService gameTimerService)
         {
@@ -50,15 +49,14 @@ namespace Fall2024_Assignment4_CS330.Controllers
         // GET: TTT/Local
         public ActionResult Local(string localTimeLimit)
         {
-            int maxTime = int.Parse(localTimeLimit);
             game = new TTTModel();
             restrictedGridX = null;
             restrictedGridO = null;
             game.Mode = Mode.Local;
             game.Status = Status.Active;
-            game.MaxTime = 300;
-            game.Player1Time = 300;
-            game.Player2Time = 300;
+            game.MaxTime = int.Parse(localTimeLimit) * 60;
+            game.Player1Time = game.MaxTime;
+            game.Player2Time = game.MaxTime;
 
             _gameTimerService.AddGame(game);
             return View(_userType == "Standard" ? "Standard" : "Pro", game);
@@ -66,22 +64,12 @@ namespace Fall2024_Assignment4_CS330.Controllers
             
         public ActionResult ChatGPT(string chatgptTimeLimit)
         {
-            int maxTime = int.Parse(chatgptTimeLimit);
             game = new TTTModel();
             restrictedGridX = null;
             restrictedGridO = null;
             game.Mode = Mode.ChatGPT;
             game.Status = Status.Active;
-            return View("Standard", game);
-        }
 
-        public ActionResult Online()
-        {
-            game = new TTTModel();
-            restrictedGridX = null;
-            restrictedGridO = null;
-            game.Mode = "Online";
-            _gameTimerService.addGame(game);
             return View("Standard", game);
         }
 
@@ -237,8 +225,9 @@ namespace Fall2024_Assignment4_CS330.Controllers
             game.CurrentPlayer = 'X';
             game.GameWinner = '\0';
             game.Status = Status.Active;
-            game.Player1Time = game.MaxTime * 60;
-            game.Player2Time = game.MaxTime * 60;
+            game.Player1Time = game.MaxTime;
+            game.Player2Time = game.MaxTime;
+
             return RedirectToAction("Index");
         }
 
@@ -322,6 +311,19 @@ namespace Fall2024_Assignment4_CS330.Controllers
 
             Random rand = new Random();
             return availableGrids[rand.Next(availableGrids.Count)];
+        }
+
+        // Method used by AJAX to update clock in real time. If winner by timeout, ViewBag.Message used to declare iwnner
+        public async Task<IActionResult> GetGameStatus()
+        {
+            // Assuming you are updating the game status and timer here
+            var gameStatus = new
+            {
+                Player1Time = game.Player1Time,
+                Player2Time = game.Player2Time,
+                Message = ViewBag.Message
+            };
+            return Json(gameStatus);
         }
     }
 }

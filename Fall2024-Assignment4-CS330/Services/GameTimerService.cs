@@ -39,8 +39,8 @@ namespace Fall2024_Assignment4_CS330.Services
                 var game = keyValPair.Value;
                 if (game.Status == Status.Complete) continue;
 
-                if (game.CurrentPlayer == 'X') game.Player1Time -= 0.2;
-                else game.Player2Time -= 0.2;
+                if (game.CurrentPlayer == 'X') game.Player1Time -= (float)0.2;
+                else game.Player2Time -= (float)0.2;
 
                 if (game.Player1Time <= 0 || game.Player2Time <= 0)
                 {
