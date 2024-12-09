@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Fall2024_Assignment4_CS330.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography.X509Certificates;
-
+using System.Timers;
 namespace Fall2024_Assignment4_CS330.Models
 {
     public enum Publicity
@@ -27,8 +27,8 @@ namespace Fall2024_Assignment4_CS330.Models
         public string Mode { get; set; } = "Unset";
         public string? Player1Id { get; set; }
         public string? Player2Id { get; set; }
-        public float Player1Time {  get; set; }
-        public float Player2Time { get; set; }
+        public double Player1Time {  get; set; }
+        public double Player2Time { get; set; }
         public string? JoinCode { get; set; }
         public Publicity Publicity { get; set; }
         public Status Status { get; set; }
@@ -72,6 +72,7 @@ namespace Fall2024_Assignment4_CS330.Models
                 BoardString = string.Join("", value.Cast<char>());
             }
         }
+
 
         public void MakeMove(int outerRow, int outerCol, int innerRow, int innerCol)
         {
@@ -165,6 +166,23 @@ namespace Fall2024_Assignment4_CS330.Models
             }
 
             return false; // Grid is not playable if no empty cells are found
+        }
+
+        public void HandleTimeout()
+        {
+            Console.WriteLine("We have a winner...");
+            if (Player1Time <= 0)
+            {
+                Player1Time = 0;
+                GameWinner = 'O';
+            }
+
+            else
+            {   
+                Player2Time = 0;
+                GameWinner = 'X';
+            }
+            Status = Status.Complete;
         }
     }
 }
