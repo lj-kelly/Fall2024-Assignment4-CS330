@@ -14,7 +14,6 @@ namespace Fall2024_Assignment4_CS330.Models
 
     public enum Status
     {
-        Queued,
         Active,
         Complete,
         Failed

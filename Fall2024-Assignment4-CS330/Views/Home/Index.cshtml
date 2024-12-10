@@ -1,7 +1,9 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
     string errorMessage = "";
+    bool userLoggedIn = false;
     if (TempData["ErrorMessage"] != null) errorMessage = TempData["ErrorMessage"].ToString();
+    if (ViewBag.UserId != null) userLoggedIn = true;
 }
 
 <head>
@@ -11,7 +13,6 @@
 <div class="video-background">
     <video autoplay loop muted playsinline>
         <source src="/lib/space.mp4" type="video/mp4">
-        <!--<source src="/lib/army.mp4" type="video/mp4">-->
         Your browser does not support the video tag.
     </video>
 </div>
@@ -55,24 +56,34 @@
                             <button type="submit" class="btn btn-primary">Start</button>
                         </form>
                     </div>
-                    <div class="tab-pane fade" id="chatgpt" role="tabpanel" aria-labelledby="chatgpt-tab">
-                        <h5>Play ChatGPT</h5>
-                        <p>Test your skills against ChatGPT!</p>
-                        <form method="post" action="@Url.Action("ChatGPT", "TTT")">
-                            <div class="mb-3">
-                                <label for="chatgptTimeLimit" class="form-label">Max Player Time</label>
-                                <select class="form-select" id="chatgptTimeLimit" name="chatgptTimeLimit" required>
-                                    <option value="2">2 Minutes</option>
-                                    <option value="5">5 Minutes</option>
-                                    <option selected value="10">10 Minutes</option>
-                                    <option value="20">20 Minutes</option>
-                                    <option value="60">60 Minutes</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Start</button>
-                        </form>
+                    @if (userLoggedIn)
+                    {
+                        <div class="tab-pane fade" id="chatgpt" role="tabpanel" aria-labelledby="chatgpt-tab">
+                            <h5>Play ChatGPT</h5>
+                            <p>Test your skills against ChatGPT!</p>
+                            <form method="post" action="@Url.Action("ChatGPT", "TTT")">
+                                <div class="mb-3">
+                                    <label for="chatgptTimeLimit" class="form-label">Max Player Time</label>
+                                    <select class="form-select" id="chatgptTimeLimit" name="chatgptTimeLimit" required>
+                                        <option value="2">2 Minutes</option>
+                                        <option value="5">5 Minutes</option>
+                                        <option selected value="10">10 Minutes</option>
+                                        <option value="20">20 Minutes</option>
+                                        <option value="60">60 Minutes</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Start</button>
+                            </form>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="tab-pane fade" id="chatgpt" role="tabpanel" aria-labelledby="chatgpt-tab">
+                            <h5>Play ChatGPT</h5>
+                            <p style="color: var(--bs-red);">You must be logged in!</p>
+                        </div>
+                    }
                     </div>
-                </div>
             </div>
         </div>
     </div>

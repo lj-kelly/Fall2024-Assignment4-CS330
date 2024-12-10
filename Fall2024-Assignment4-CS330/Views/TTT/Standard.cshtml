@@ -16,11 +16,6 @@
         const video = document.getElementById("roku-video");
         const STORAGE_KEY = "videoPlaybackTime";
 
-        if (!video) {
-            console.error("Video element not found. Check your HTML for the correct ID.");
-            return;
-        }
-
         // Ensure the video is ready before setting currentTime
         video.addEventListener("loadedmetadata", () => {
             const savedTime = localStorage.getItem(STORAGE_KEY);
@@ -52,8 +47,8 @@
                 url: '@Url.Action("GetGameStatus", "TTT")',
                 method: 'GET',
                 success: function (data) {
-                    $('#player1-time').text(data.player1Time.toFixed(0) + " s");
-                    $('#player2-time').text(data.player2Time.toFixed(0) + " s");
+                    $('#player1-time').text(formatTime(data.player1Time));
+                    $('#player2-time').text(formatTime(data.player2Time));
 
                     if (data.message) {
                         $('#game-message').text(data.message);
@@ -63,8 +58,16 @@
                     console.error("Error fetching game status:", error);
                 }
             });
-        }, 200);
+        }, 50);
     });
+
+    function formatTime(seconds) {
+        var minutes = Math.floor(seconds / 60);
+        var secs = Math.floor(seconds % 60);
+        var tenths = Math.round((seconds % 1) * 10);
+        if (tenths == 10) tenths = 1;
+        return minutes.toString().padStart(2, '0') + ":" + secs.toString().padStart(2, '0') + "." + tenths.toString();
+    }
 </script>
 
 <div class="video-background">

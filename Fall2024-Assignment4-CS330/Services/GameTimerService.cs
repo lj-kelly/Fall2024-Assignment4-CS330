@@ -14,7 +14,7 @@ namespace Fall2024_Assignment4_CS330.Services
         public GameTimerService()
         {
             _activeGames = new Dictionary<int, TTTModel>();
-            _timer = new System.Timers.Timer(200); // 1 second interval
+            _timer = new System.Timers.Timer(50);
             _timer.Elapsed += OnTimerElapsed;
             _timer.AutoReset = true;
             _timer.Enabled = true;
@@ -39,8 +39,8 @@ namespace Fall2024_Assignment4_CS330.Services
                 var game = keyValPair.Value;
                 if (game.Status == Status.Complete) continue;
 
-                if (game.CurrentPlayer == 'X') game.Player1Time -= (float)0.2;
-                else game.Player2Time -= (float)0.2;
+                if (game.CurrentPlayer == 'X') game.Player1Time -= (float)0.05;
+                else game.Player2Time -= (float)0.05;
 
                 if (game.Player1Time <= 0 || game.Player2Time <= 0)
                 {

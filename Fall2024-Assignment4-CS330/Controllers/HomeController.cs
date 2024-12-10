@@ -6,6 +6,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Net.WebSockets;
+using System.Security.Claims;
 using System.Text;
 
 namespace Fall2024_Assignment4_CS330.Controllers
@@ -23,6 +24,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
 
         public IActionResult Index()
         {
+            ViewBag.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return View();
         }
 
