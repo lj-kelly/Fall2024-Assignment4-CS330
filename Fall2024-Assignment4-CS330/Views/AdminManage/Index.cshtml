@@ -7,6 +7,7 @@
             <th class="user-photo-col">Photo</th> <!-- New column for the photo -->
             <th class="username-col">Username</th>
             <th class="usertype-col">User Type</th>
+            <th class="usertype-col">Change Type</th>
            
         </tr>
     </thead>
@@ -28,7 +29,11 @@
                 </td>
                 <td class="username">@user.UserName</td>
                 <td class="usertype">@user.UserType</td>
-                
+                <td class="usertype">
+                    <form asp-controller="AdminManage" asp-action="UpdateType" method="post">
+                        <button type="submit" class="btn btn-primary">Change</button>
+                    </form>
+                </td>
             </tr>
         }
     </tbody>

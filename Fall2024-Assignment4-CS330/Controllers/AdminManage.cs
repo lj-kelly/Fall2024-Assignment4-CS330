@@ -50,5 +50,30 @@ namespace Fall2024_Assignment4_CS330.Controllers
             // Pass the model to the view
             return View(adminmanageVM);
         }
+        //GET
+        [HttpPost]
+        public async Task<IActionResult> UpdateType()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return RedirectToAction("Index", "AdminManage"); // Redirect back to a page showing users.
+            }
+
+            var currentClaims = await _userManager.GetClaimsAsync(user);
+            var userTypeClaim = currentClaims.FirstOrDefault(c => c.Type == "UserType");
+            var userTypeClaimValue = userTypeClaim?.Value;
+            if (userTypeClaim != null)
+            {
+                await _userManager.RemoveClaimAsync(user, userTypeClaim);
+            }
+            var newType = userTypeClaimValue == "Standard" ? "Pro" : "Standard";
+            await _userManager.AddClaimAsync(user, new Claim("UserType", newType));
+            return RedirectToAction("Index", "AdminManage");
+
+
+        }
     }
 }
