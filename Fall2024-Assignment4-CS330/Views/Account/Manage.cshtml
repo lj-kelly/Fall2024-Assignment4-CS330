@@ -11,6 +11,10 @@
                 </div>
                 <div class="card-body">
                     <form asp-action="Manage" method="post" enctype="multipart/form-data">
+                         <!--<div class="form-group mb-2">
+                              <label class="text-primary">UserType</label>
+                              <p>@Model.UserType</p>
+                          </div>-->
                         <div class="form-group mb-2">
                             <label asp-for="DisplayName" class="text-primary"></label>
                             <input asp-for="DisplayName" class="form-control" />
@@ -36,6 +40,7 @@
                     <h2 class="mb-0">Account Stats</h2>
                 </div>
                 <div class="card-body">
+                    <p><strong>Type: </strong>@Model.UserType</p>
                     <p><strong>Wins:</strong> @Model.GamesWon</p>
                     <p><strong>Losses:</strong> @Model.GamesLost</p>
                     <p><strong>Ties:</strong> @Model.GamesTied</p>

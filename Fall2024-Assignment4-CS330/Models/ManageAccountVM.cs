@@ -17,5 +17,6 @@ namespace Fall2024_Assignment4_CS330.Models
         public int WinPercentage => GamesPlayed == 0 ? 0 : (int)((double)GamesWon / GamesPlayed * 100);
         public IFormFile? Photo { get; set; }
         public List<TTTModel>? gameHistory { get; set; }
+        public string UserType { get; set; } // Property to hold the UserType
     }
 }
