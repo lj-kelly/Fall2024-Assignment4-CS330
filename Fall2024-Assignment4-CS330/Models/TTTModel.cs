@@ -35,7 +35,14 @@ namespace Fall2024_Assignment4_CS330.Models
 
         /// Game data
         /// Fields that effect the game itself and update frequently
-        public string BoardString { get; set; } = new string('\0', 81); // flattened representation of the board 
+        public string BoardString
+        {
+            get => _boardString;
+            set => _boardString = (value?.PadRight(81, '\0') ?? new string('\0', 81));
+        }
+
+        private string _boardString = new string('\0', 81);
+        // flattened representation of the board 
         public char CurrentPlayer { get; set; } = 'X'; // always x or o, x is first and player 1
         public int? RestrictedGrid { get; set; } = null; // the index of the grid that the current player has to play in
         public float Player1Time { get; set; } = 600; // in seconds
