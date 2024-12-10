@@ -202,3 +202,12 @@ body {
     border-radius: 50%; /* Circular image */
     object-fit: cover; /* Ensures the image fits within the dimensions */
 }
+
+.denied-head {
+    font-weight: bold;
+    color: red;
+} 
+
+.denied-p {
+    color: red
+}
