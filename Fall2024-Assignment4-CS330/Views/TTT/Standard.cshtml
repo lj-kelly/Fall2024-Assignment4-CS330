@@ -1,8 +1,10 @@
 ﻿@model Fall2024_Assignment4_CS330.Models.TTTModel
 @{
-    ViewBag.Title = "Tic Tac Toe";
+    ViewBag.Title = "Big Tac Toe";
     var playerColor = Model.CurrentPlayer == 'X' ? "text-danger" : "text-info";
     var pointerEvents = Model.Status == Status.Active ? "all" : "none";
+    var player1TimerClass = Model.CurrentPlayer == 'X' ? "timer-highlighted" : "";
+    var player2TimerClass = Model.CurrentPlayer == 'X' ? "" : "timer-highlighted";
 }
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -43,103 +45,16 @@
             clearInterval(saveInterval);
         });
     });
-</script>
 
-<div class="video-background">
-    <video id="roku-video" autoplay loop muted playsinline preload="auto">
-        <source src="/lib/roku_60fps_interpolated.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-</div>
-
-<div class="container d-flex flex-column justify-content-center align-items-center text-center">
-    <div class="decorative-background p-4 rounded mb-3">
-        <h2 class="text-primary m-0">Tic Tac Toe - @Model.Mode - <span class="@playerColor">@Model.CurrentPlayer</span></h2>
-    </div>
-    <div>
-        <table class="board" border="1" style="border-collapse: collapse; width: 450px; height: 450px; text-align: center; pointer-events: @pointerEvents;">
-            @for (int x = 0; x < 3; x++) // Board rows
-            {
-                <tr>
-                    @for (int y = 0; y < 3; y++) // Board columns
-                    {
-                        var winner = Model.CheckGridWinner(x, y);
-                        var gridClass = "";
-                        var cellClass = "";
-                        if (winner == 'X') 
-                        {
-                            gridClass = "claimed-x";
-                        } 
-                        else if (winner == 'O') 
-                        {
-                            gridClass = "claimed-o";
-                        } 
-                        else if (!Model.IsGridPlayable(x, y))
-                        {
-                            gridClass = "tied-grid";
-                        }
-
-                        if (Model.RestrictedGrid == x * 3 + y) cellClass = "restricted-grid";
-                    
-                        <td style="width: 150px; height: 150px;">
-                            <table class="grid @gridClass" border="1" style="border-collapse: collapse; width: 100%; height: 100%; text-align: center;">
-                                @for (int z = 0; z < 3; z++) // Grid rows
-                                {
-                                    <tr>
-                                        @for (int w = 0; w < 3; w++) // Grid columns
-                                        {
-                                            var textColor = "";
-                                            if (Model.Board[x, y, z, w] == 'X') textColor = "text-danger";
-                                            if (Model.Board[x, y, z, w] == 'O') textColor = "text-info";
-
-                                            <td class="cell" style="width: 50px; height: 50px;">
-                                                @if (Model.Board[x,y,z,w] == '\0')
-                                                {
-                                                    <form method="post" action="@Url.Action("MakeMove", "TTT")" style="display: inline;">
-                                                        <input type="hidden" name="gridRow" value="@x" />
-                                                        <input type="hidden" name="gridCol" value="@y" />
-                                                        <input type="hidden" name="cellRow" value="@z" />
-                                                        <input type="hidden" name="cellCol" value="@w" />
-                                                        <button class=@cellClass type="submit" style="width: 100%; height: 100%; font-size: 20px;"></button>
-                                                    </form>
-                                                }
-                                                else
-                                                {
-                                                    <h4 class=@textColor>@Model.Board[x,y,z,w]</h4>
-                                                }
-                                            </td>
-                                        }
-                                    </tr>
-                                }
-                            </table>
-                        </td>
-                    }
-                </tr>
-            }
-        </table>
-    </div>
-    <div class="hintDiv p-3">
-        <form method="post" action="@Url.Action("GetHint", "TTT")">
-            <button type="submit" id="getHintButton">Get a Hint</button>
-        </form>
-        <p id="hintText">
-            @ViewBag.Hint
-        </p>
-    </div>
-</div>
-<script>
     $(document).ready(function () {
-        // Update game status every 200ms (0.2 seconds)
         setInterval(function () {
             $.ajax({
-                url: '@Url.Action("GetGameStatus", "TTT")', // URL to fetch game status
+                url: '@Url.Action("GetGameStatus", "TTT")',
                 method: 'GET',
                 success: function (data) {
-                    // Update the timer display
-                    $('#player1-time').text(data.player1Time.toFixed(1) + "s");
-                    $('#player2-time').text(data.player2Time.toFixed(1) + "s");
+                    $('#player1-time').text(data.player1Time.toFixed(0) + " s");
+                    $('#player2-time').text(data.player2Time.toFixed(0) + " s");
 
-                    // Update the message if there is one
                     if (data.message) {
                         $('#game-message').text(data.message);
                     }
@@ -151,18 +66,130 @@
         }, 200);
     });
 </script>
-<div class="decorative-background p-4 rounded mb-3">
-    <div id="game-message">
-        @if (ViewBag.Message != null)
+
+<div class="video-background">
+    <video id="roku-video" autoplay loop muted playsinline preload="auto">
+        <source src="/lib/roku_60fps_interpolated.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</div>
+
+<div class="container d-flex flex-column justify-content-center align-items-center text-center">
+    <div class="decorative-background p-4 rounded mb-3">
+        @if (Model.Mode == Mode.Local)
         {
-            <h3 class="text-secondary">@ViewBag.Message</h3>
+            <h2 class="text-primary m-0">Big Tac Toe - <span class="@playerColor">@Model.CurrentPlayer</span>'s Turn</h2>
+        } 
+        else
+        {
+            var s = Model.CurrentPlayer == 'X' ? "Your" : "ChatGPT's";
+            <h2 class="text-primary m-0">Big Tac Toe - <span class="@playerColor">@s</span> Turn</h2>
         }
     </div>
-    <div id="timer-display">
-        <p>Player 1 Time: <span id="player1-time">@Model.Player1Time.ToString("F1")</span></p>
-        <p>Player 2 Time: <span id="player2-time">@Model.Player2Time.ToString("F1")</span></p>
+    <div class="row" style="width: 80%;">
+        <div class="col-3 d-flex flex-column justify-content-center align-items-center">
+            <div id="player1-timer" class="p-3 rounded mb-2 claimed-x @player1TimerClass" style="color: whitesmoke; width: 160px;">
+                <h4>Player 1 (X)</h4>
+                <p><span id="player1-time" style="font-size: 30px;">@Model.Player1Time.ToString("F0") s</span></p>
+            </div>
+            <div id="player2-timer" class="p-3 rounded mb-4 claimed-o @player2TimerClass" style="width: 160px;">
+                <h4>Player 2 (O)</h4>
+                <p><span id="player2-time" style="font-size: 30px;">@Model.Player2Time.ToString("F0") s</span></p>
+            </div>
+            <form method="post" action="@Url.Action("GetHint", "TTT")">
+                <button type="submit" id="getHintButton" class="btn btn-primary" style="width: 125px;">Get a Hint</button>
+            </form>
+            <button class="btn btn-danger mt-3" data-bs-toggle="modal" data-bs-target="#resetModal">Restart Game</button>
+        </div>
+        <div class="col-6 d-flex justify-content-center align-items-center">
+            <table class="board" border="1" style="border-collapse: collapse; width: 450px; height: 450px; text-align: center; pointer-events: @pointerEvents;">
+                @for (int x = 0; x < 3; x++) // Board rows
+                {
+                    <tr>
+                        @for (int y = 0; y < 3; y++) // Board columns
+                        {
+                            var winner = Model.CheckGridWinner(x, y);
+                            var gridClass = "";
+                            var cellClass = "";
+                            if (winner == 'X')
+                            {
+                                gridClass = "claimed-x";
+                            }
+                            else if (winner == 'O')
+                            {
+                                gridClass = "claimed-o";
+                            }
+                            else if (!Model.IsGridPlayable(x, y))
+                            {
+                                gridClass = "tied-grid";
+                            }
+
+                            if (Model.RestrictedGrid == x * 3 + y) cellClass = "restricted-grid";
+                    
+                            <td style="width: 150px; height: 150px; padding: 2px;">
+                                <table class="grid @gridClass" border="1" style="border-collapse: collapse; width: 100%; height: 100%; text-align: center;">
+                                    @for (int z = 0; z < 3; z++) // Grid rows
+                                    {
+                                        <tr>
+                                            @for (int w = 0; w < 3; w++) // Grid columns
+                                            {
+                                                var textColor = "";
+                                                if (Model.Board[x, y, z, w] == 'X') textColor = "text-danger";
+                                                if (Model.Board[x, y, z, w] == 'O') textColor = "text-info";
+
+                                                <td class="cell" style="width: 50px; height: 50px;">
+                                                    @if (Model.Board[x,y,z,w] == '\0')
+                                                    {
+                                                        <form method="post" action="@Url.Action("MakeMove", "TTT")" style="display: inline;">
+                                                            <input type="hidden" name="gridRow" value="@x" />
+                                                            <input type="hidden" name="gridCol" value="@y" />
+                                                            <input type="hidden" name="cellRow" value="@z" />
+                                                            <input type="hidden" name="cellCol" value="@w" />
+                                                            <button class=@cellClass type="submit" style="width: 100%; height: 100%; font-size: 20px;"></button>
+                                                        </form>
+                                                    }
+                                                    else
+                                                    {
+                                                        <h4 class=@textColor>@Model.Board[x,y,z,w]</h4>
+                                                    }
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                </table>
+                            </td>
+                        }
+                    </tr>
+                }
+            </table>
+        </div>
+        <div class="col-3 d-flex flex-column rounded align-items-center" style="background-color: var(--bs-tertiary-color);">
+            <h4 class="mt-3 text-primary p-2 rounded mb-2" style="background-color: white;">Message Feed</h4>
+            <div id="game-message" style="text-align: left;">
+                @if (ViewBag.Message != null)
+                {
+                    <h3 style="color: var(--bs-red);">@ViewBag.Message</h3>
+                }
+                @if (ViewBag.Hint != null)
+                {
+                    <h3 style="color: var(--bs-green);">@ViewBag.Hint</h3>
+                }
+            </div>
+        </div>
     </div>
-    <form method="get" action="@Url.Action("Reset", "TTT")">
-        <button class="btn btn-primary" type="submit" style="margin-top: 20px;">Restart Game</button>
-    </form>
+</div>
+<div class="modal fade" id="resetModal" tabindex="-1" aria-labelledby="resetModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resetModalLabel">Reset Game?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <form method="get" action="@Url.Action("Reset", "TTT")">
+                    <button class="btn btn-danger" type="submit" style="margin-top: 20px; width: 125px;">Confirm</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>

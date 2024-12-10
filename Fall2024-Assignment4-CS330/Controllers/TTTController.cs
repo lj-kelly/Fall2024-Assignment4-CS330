@@ -204,6 +204,9 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 Console.WriteLine("Greetings");
                 string response = await _openAIService.GetHint(game);
                 Console.WriteLine(response);
+
+                var sentences = response.Split('.');
+                response = sentences[0] + "." + sentences[2] + ".";
                 ViewBag.Hint = response;
             }
 
@@ -220,15 +223,17 @@ namespace Fall2024_Assignment4_CS330.Controllers
         // GET: TTT/Reset
         public ActionResult Reset()
         {
-            // Wipe the board but keep the current game mode and player details
-            game.BoardString = new string('\0', 9); // Set all cells to empty
+            game.BoardString = new string('\0', 81); // Set all cells to empty
             game.CurrentPlayer = 'X';
             game.GameWinner = '\0';
             game.Status = Status.Active;
             game.Player1Time = game.MaxTime;
             game.Player2Time = game.MaxTime;
+            game.RestrictedGrid = null;
+            restrictedGridX = null;
+            restrictedGridO = null;
 
-            return RedirectToAction("Index");
+            return View(_userType == "Standard" ? "Standard" : "Pro", game);
         }
 
         // Method to increment wins for the logged-in user
@@ -294,7 +299,6 @@ namespace Fall2024_Assignment4_CS330.Controllers
             return false;
         }
 
-        // Method to get a random available grid
         private int GetRandomAvailableGrid()
         {
             List<int> availableGrids = new List<int>();
@@ -313,10 +317,8 @@ namespace Fall2024_Assignment4_CS330.Controllers
             return availableGrids[rand.Next(availableGrids.Count)];
         }
 
-        // Method used by AJAX to update clock in real time. If winner by timeout, ViewBag.Message used to declare iwnner
         public async Task<IActionResult> GetGameStatus()
         {
-            // Assuming you are updating the game status and timer here
             var gameStatus = new
             {
                 Player1Time = game.Player1Time,

@@ -1,6 +1,6 @@
 ﻿@model Fall2024_Assignment4_CS330.Models.TTTModel
 @{
-    ViewBag.Title = "Tic Tac Toe";
+    ViewBag.Title = "Big Tac Toe";
     var playerColor = Model.CurrentPlayer == 'X' ? "text-danger" : "text-info";
     var pointerEvents = Model.GameWinner == '\0' ? "all" : "none";
 }
@@ -62,7 +62,7 @@
 
 <div class="container d-flex flex-column justify-content-center align-items-center text-center">
     <div class="decorative-background p-4 rounded mb-3">
-        <h2 class="text-primary m-0">Tic Tac Toe - @Model.Mode - <span class="@playerColor">@Model.CurrentPlayer</span></h2>
+        <h2 class="text-primary m-0">Big Tac Toe - @Model.Mode - <span class="@playerColor">@Model.CurrentPlayer</span></h2>
     </div>
     <div>
         <table class="board" border="1" style="border-collapse: collapse; width: 450px; height: 450px; text-align: center; pointer-events: @pointerEvents;">

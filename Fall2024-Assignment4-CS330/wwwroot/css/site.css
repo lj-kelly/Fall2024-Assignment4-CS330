@@ -131,11 +131,10 @@ body {
     border: 3px solid rgb(1, 0, 0);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    width: 200px; /* Fixed width for the hint section */
     color: black;
     background-color: mediumpurple;
 }
-}
+
 .pro-decorative-background {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(240, 240, 255, 0.9));
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -201,4 +200,22 @@ body {
     height: 30px; /* Set your preferred height */
     border-radius: 50%; /* Circular image */
     object-fit: cover; /* Ensures the image fits within the dimensions */
+}
+
+.timer-highlighted {
+    animation: borderFade 2s infinite;
+}
+
+@keyframes borderFade {
+    0% {
+        transform: scale(1.0)
+    }
+
+    50% {
+        transform: scale(1.05)
+    }
+
+    100% {
+        transform: scale(1.0)
+    }
 }
