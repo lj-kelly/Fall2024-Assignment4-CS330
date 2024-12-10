@@ -243,6 +243,12 @@ namespace Fall2024_Assignment4_CS330.Controllers
 
             await _userManager.AddClaimAsync(user, new Claim("DisplayName", model.DisplayName));
 
+            var userTypeClaim = currentClaims.FirstOrDefault(c => c.Type == "UserType");
+            if (userTypeClaim != null)
+            {
+                await _userManager.RemoveClaimAsync(user, userTypeClaim);
+            }
+            await _userManager.AddClaimAsync(user, new Claim("UserType", model.UserType));
             // Handle the photo upload
             if (model.Photo != null)
             {
