@@ -11,6 +11,7 @@ using Azure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Timers;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Fall2024_Assignment4_CS330.Controllers
 {
@@ -94,15 +95,8 @@ namespace Fall2024_Assignment4_CS330.Controllers
             // If the move is valid, make the move
             if (game.Board[gridRow, gridCol, cellRow, cellCol] == '\0')
             {
-                if (game.Mode == Mode.ChatGPT)
-                {
-                    await MakeChatGPTMove(gridRow, gridCol, cellRow, cellCol);
-                }
-                else
-                {
-                    game.MakeMove(gridRow, gridCol, cellRow, cellCol);
-                }
-              
+                game.MakeMove(gridRow, gridCol, cellRow, cellCol);
+
                 int nextGrid = GetGridIndex(cellRow, cellCol);
                 if (!IsGridAvailable(nextGrid))
                 {
@@ -132,7 +126,8 @@ namespace Fall2024_Assignment4_CS330.Controllers
                     ViewBag.Message = $"Player {boardWinner} wins the game!";
                     game.GameWinner = boardWinner;
                     game.Status = Status.Complete;
-                    if (game.Mode == Mode.ChatGPT) {
+                    if (game.Mode == Mode.ChatGPT)
+                    {
                         if (boardWinner == 'X') await IncrementWins();
                         await IncrementLosses();
                     }
@@ -143,7 +138,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                     int gridsWonByO = 0;
                     for (int x = 0; x < 3; x++) // check second win condition: more grids won
                     {
-                        for (int y = 0;  y < 3; y++)
+                        for (int y = 0; y < 3; y++)
                         {
                             char g = game.CheckGridWinner(x, y);
                             if (g == 'X') gridsWonByX++;
@@ -156,13 +151,13 @@ namespace Fall2024_Assignment4_CS330.Controllers
                         ViewBag.Message = "Player X wins the game!";
                         game.GameWinner = 'X';
                         if (game.Mode == Mode.ChatGPT) await IncrementWins();
-                    } 
+                    }
                     else if (gridsWonByO > gridsWonByX)
                     {
                         ViewBag.Message = "Player O wins the game!";
                         game.GameWinner = 'O';
                         if (game.Mode == Mode.ChatGPT) await IncrementLosses();
-                    } 
+                    }
                     else // only a tie if both players won equal grids
                     {
                         ViewBag.Message = "It's a draw!";
@@ -172,12 +167,17 @@ namespace Fall2024_Assignment4_CS330.Controllers
                             await IncrementTies();
                         }
                     }
-                    game.Status = Status.Complete;
+                     game.Status = Status.Complete;
                 }
             }
             else
             {
                 ViewBag.Message = "Invalid move. Cell already occupied.";
+            }
+
+            if (game.Mode == Mode.ChatGPT && currentPlayer == 'X')
+            {
+                await MakeChatGPTMove(gridRow, gridCol, cellRow, cellCol);
             }
 
             //var userType = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
@@ -187,11 +187,11 @@ namespace Fall2024_Assignment4_CS330.Controllers
 
         private async Task MakeChatGPTMove(int gridRow, int gridCol, int cellRow, int cellCol)
         {
-            game.MakeMove(gridRow, gridCol, cellRow, cellCol);
+            //game.MakeMove(gridRow, gridCol, cellRow, cellCol);
             if (game.CheckBoardWinner() == '\0')
             {
                 List<int> gptMove = await _openAIService.GetNextMove(game, (gridRow, gridCol));
-                game.MakeMove(cellRow, cellCol, gptMove[0], gptMove[1]);
+                await MakeMove(cellRow, cellCol, gptMove[0], gptMove[1]);
             }
         }
 

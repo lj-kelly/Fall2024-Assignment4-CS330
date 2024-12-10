@@ -107,7 +107,14 @@ namespace Fall2024_Assignment4_CS330.Models
 
         public void TogglePlayer()
         {
-            CurrentPlayer = (CurrentPlayer == 'X') ? 'O' : 'X';
+            if(CurrentPlayer == 'X')
+            {
+                CurrentPlayer = 'O';
+            }
+            else
+            {
+                CurrentPlayer = 'X';
+            }
         }
 
         public char CheckGridWinner(int outerRow, int outerCol)
