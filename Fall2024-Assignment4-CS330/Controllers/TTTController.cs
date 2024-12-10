@@ -228,7 +228,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
             game.Player1Time = game.MaxTime;
             game.Player2Time = game.MaxTime;
 
-            return RedirectToAction("Index");
+            return View(_userType == "Standard" ? "Standard" : "Pro", game);
         }
 
         // Method to increment wins for the logged-in user
