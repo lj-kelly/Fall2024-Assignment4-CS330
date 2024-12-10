@@ -195,8 +195,9 @@ namespace Fall2024_Assignment4_CS330.Controllers
 
             // Retrieve DisplayName and Photo (if available)
             var displayNameClaim = await _userManager.GetClaimsAsync(user);
+            //var userTypeClaim = await _userManager.GetClaimsAsync(user);
             var displayName = displayNameClaim.FirstOrDefault(c => c.Type == "DisplayName")?.Value;
-
+            var userType = displayNameClaim.FirstOrDefault(c => c.Type == "UserType")?.Value;
             var model = new ManageAccountVM
             {
                 DisplayName = displayName,
@@ -206,7 +207,8 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 GamesWon = user.GamesWon,
                 GamesLost = user.GamesLost,
                 GamesTied = user.GamesTied,
-                gameHistory = user.GameHistory
+                gameHistory = user.GameHistory,
+                UserType = userType
             };
 
             return View(model);
@@ -241,6 +243,12 @@ namespace Fall2024_Assignment4_CS330.Controllers
 
             await _userManager.AddClaimAsync(user, new Claim("DisplayName", model.DisplayName));
 
+            var userTypeClaim = currentClaims.FirstOrDefault(c => c.Type == "UserType");
+            if (userTypeClaim != null)
+            {
+                await _userManager.RemoveClaimAsync(user, userTypeClaim);
+            }
+            await _userManager.AddClaimAsync(user, new Claim("UserType", model.UserType));
             // Handle the photo upload
             if (model.Photo != null)
             {
