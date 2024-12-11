@@ -3,6 +3,7 @@
     ViewBag.Title = "Big Tac Toe";
     var playerColor = Model.CurrentPlayer == 'X' ? "text-danger" : "text-info";
     var pointerEvents = Model.Status == Status.Active ? "all" : "none";
+    if (Model.CurrentPlayer == 'O' && Model.Mode == Mode.ChatGPT) pointerEvents = "none";
     var player1TimerClass = Model.CurrentPlayer == 'X' ? "timer-highlighted" : "";
     var player2TimerClass = Model.CurrentPlayer == 'X' ? "" : "timer-highlighted";
 }
@@ -33,6 +34,27 @@
 
         // Save playback time periodically
         const saveInterval = setInterval(updatePlaybackTime, 1000);
+
+        const chatGptSubmit = document.getElementById('chatGptSubmit');
+
+        if (chatGptSubmit != null) {
+            const maxTime = document.getElementById('maxTime').value;
+            var delay;
+            var fluctuation;
+            if (maxTime < 200) {
+                delay = 0;
+                fluctuation = 3;
+            } else {
+                delay = (maxTime - 160) / 40;
+                fluctuation = maxTime / 40;
+            }
+            delay = Math.floor((delay + Math.random() * fluctuation) * 1000);
+            console.log("Simulating " + delay + " ms delay for chatgpt to think...");
+
+            setTimeout(() => {
+                chatGptSubmit.click();
+            }, delay);
+        }
 
         // Cleanup on page unload
         window.addEventListener("beforeunload", () => {
@@ -87,6 +109,22 @@
         {
             var s = Model.CurrentPlayer == 'X' ? "Your" : "ChatGPT's";
             <h2 class="text-primary m-0">Big Tac Toe - <span class="@playerColor">@s</span> Turn</h2>
+
+            if (Model.CurrentPlayer == 'O')
+            {
+                var restrictedGrid = Model.RestrictedGrid ?? 0;
+                var rgRow = Math.Floor((double)restrictedGrid / 3);
+                var rgCol = restrictedGrid % 3;
+
+                <form method="post" action="@Url.Action("MakeMove", "TTT")" style="display: none;">
+                    <input type="hidden" name="gridRow" value="@rgRow" />
+                    <input type="hidden" name="gridCol" value="@rgCol" />
+                    <input type="hidden" name="cellRow" value="-2" />
+                    <input type="hidden" name="cellCol" value="-2" />
+                    <button id="chatGptSubmit"></button>
+                </form>
+                <input type="hidden" id="maxTime" value="@Model.MaxTime"/>
+            }
         }
     </div>
     <div class="row" style="width: 80%;">

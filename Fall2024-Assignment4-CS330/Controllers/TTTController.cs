@@ -69,7 +69,11 @@ namespace Fall2024_Assignment4_CS330.Controllers
             restrictedGridO = null;
             game.Mode = Mode.ChatGPT;
             game.Status = Status.Active;
+            game.MaxTime = int.Parse(chatgptTimeLimit) * 60;
+            game.Player1Time = game.MaxTime;
+            game.Player2Time = game.MaxTime;
 
+            _gameTimerService.AddGame(game);
             return View("Standard", game);
         }
 
@@ -91,19 +95,32 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 return View(_userType == "Standard" ? "Standard" : "Pro", game);
             }
 
-            // If the move is valid, make the move
-            if (game.Board[gridRow, gridCol, cellRow, cellCol] == '\0')
+            // If the move is valid, make the move, or let chatgpt take its turn if necessary
+            if (cellRow == -2 && cellCol == -2 || game.Board[gridRow, gridCol, cellRow, cellCol] == '\0')
             {
-                if (game.Mode == Mode.ChatGPT)
+                int nextGrid;
+
+                if (game.Mode == Mode.ChatGPT && game.CurrentPlayer == 'O')
                 {
-                    await MakeChatGPTMove(gridRow, gridCol, cellRow, cellCol);
+                    nextGrid = await MakeChatGPTMove(gridRow, gridCol);
+                    if (nextGrid == -1)
+                    {
+                        ViewBag.Message = $"Player X wins the game!";
+                        game.GameWinner = 'X';
+                        game.Status = Status.Complete;
+                        if (game.Mode == Mode.ChatGPT)
+                        {
+                            await IncrementWins();
+                        }
+                    }
                 }
                 else
                 {
                     game.MakeMove(gridRow, gridCol, cellRow, cellCol);
+                    nextGrid = GetGridIndex(cellRow, cellCol);
+                    if (game.Mode == Mode.ChatGPT) ViewBag.Message = "ChatGPT is thinking...";
                 }
               
-                int nextGrid = GetGridIndex(cellRow, cellCol);
                 if (!IsGridAvailable(nextGrid))
                 {
                     nextGrid = GetRandomAvailableGrid(); // this will be -1 if there are no moves available
@@ -185,14 +202,15 @@ namespace Fall2024_Assignment4_CS330.Controllers
             return View(_userType == "Standard" ? "Standard" : "Pro", game);
         }
 
-        private async Task MakeChatGPTMove(int gridRow, int gridCol, int cellRow, int cellCol)
+        private async Task<int> MakeChatGPTMove(int restrictedGridRow, int restrictedGridCol)
         {
-            game.MakeMove(gridRow, gridCol, cellRow, cellCol);
             if (game.CheckBoardWinner() == '\0')
             {
-                List<int> gptMove = await _openAIService.GetNextMove(game, (gridRow, gridCol));
-                game.MakeMove(cellRow, cellCol, gptMove[0], gptMove[1]);
+                List<int> gptMove = await _openAIService.GetNextMove(game, (restrictedGridRow, restrictedGridCol));
+                game.MakeMove(restrictedGridRow, restrictedGridCol, gptMove[2], gptMove[3]);
+                return 3 * gptMove[2] + gptMove[3];
             }
+            return -1;
         }
 
         // POST: TTT/GetHint
