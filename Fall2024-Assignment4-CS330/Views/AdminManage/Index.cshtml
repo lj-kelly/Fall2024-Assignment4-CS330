@@ -31,6 +31,7 @@
                 <td class="usertype">@user.UserType</td>
                 <td class="usertype">
                     <form asp-controller="AdminManage" asp-action="UpdateType" method="post">
+                        <input type="hidden" name="targetUserId" value="@user.Id" />
                         <button type="submit" class="btn btn-primary">Change</button>
                     </form>
                 </td>
