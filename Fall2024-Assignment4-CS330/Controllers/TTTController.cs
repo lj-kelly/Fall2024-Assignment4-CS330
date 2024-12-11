@@ -82,6 +82,27 @@ namespace Fall2024_Assignment4_CS330.Controllers
         [HttpPost]
         public async Task<ActionResult> MakeMove(int gridRow, int gridCol, int cellRow, int cellCol)
         {
+            if (game.GameWinner == 'X')
+            {
+                ViewBag.Message = $"Player X wins the game!";
+                game.Status = Status.Complete;
+                if (game.Mode == Mode.ChatGPT)
+                {
+                    await IncrementWins();
+                }
+                return View(_userType == "Standard" ? "Standard" : "Pro", game);
+            }
+            else if (game.GameWinner == 'O')
+            {
+                ViewBag.Message = $"Player O wins the game!";
+                game.Status = Status.Complete;
+                if (game.Mode == Mode.ChatGPT)
+                {
+                    await IncrementLosses();
+                }
+                return View(_userType == "Standard" ? "Standard" : "Pro", game);
+            }
+
             Console.WriteLine($"Player 1 Time: {game.Player1Time}s, Player 2 Time: {game.Player2Time}s");
             // Determine which player is making the move
             char currentPlayer = game.CurrentPlayer;
@@ -271,7 +292,6 @@ namespace Fall2024_Assignment4_CS330.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(userId);
             user.GamesLost++;
-            user.GameHistory.Add(game);
             await _userManager.UpdateAsync(user);
         }
 
@@ -280,7 +300,6 @@ namespace Fall2024_Assignment4_CS330.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(userId);
             user.GamesTied++;
-            user.GameHistory.Add(game);
             await _userManager.UpdateAsync(user);
         }
 
