@@ -37,6 +37,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             _userType = User.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value ?? "Standard";
+            if (game.Mode == Mode.ChatGPT) _userType = "Standard";
             base.OnActionExecuting(context);
         }
 
