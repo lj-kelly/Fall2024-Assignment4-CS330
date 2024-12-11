@@ -52,28 +52,62 @@ namespace Fall2024_Assignment4_CS330.Controllers
         }
         //GET
         [HttpPost]
-        public async Task<IActionResult> UpdateType()
+        public async Task<IActionResult> UpdateType(string targetUserId)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _userManager.FindByIdAsync(userId);
+            // Get the ID of the user performing the action
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var currentUser = await _userManager.FindByIdAsync(currentUserId);
 
-            if (user == null)
+            if (currentUser == null)
             {
-                return RedirectToAction("Index", "AdminManage"); // Redirect back to a page showing users.
+                
+                return RedirectToAction("Index", "AdminManage");
             }
 
-            var currentClaims = await _userManager.GetClaimsAsync(user);
-            var userTypeClaim = currentClaims.FirstOrDefault(c => c.Type == "UserType");
-            var userTypeClaimValue = userTypeClaim?.Value;
-            if (userTypeClaim != null)
+            // Verify the current user has 'Pro' UserType
+            var currentUserClaims = await _userManager.GetClaimsAsync(currentUser);
+            var currentUserTypeClaim = currentUserClaims.FirstOrDefault(c => c.Type == "UserType");
+
+            if (currentUserTypeClaim == null || currentUserTypeClaim.Value != "Pro")
             {
-                await _userManager.RemoveClaimAsync(user, userTypeClaim);
+                
+                return RedirectToAction("Index", "AdminManage");
             }
-            var newType = userTypeClaimValue == "Standard" ? "Pro" : "Standard";
-            await _userManager.AddClaimAsync(user, new Claim("UserType", newType));
+
+            // Get the user to be updated
+            var targetUser = await _userManager.FindByIdAsync(targetUserId);
+
+            if (targetUser == null)
+            {
+                
+                return RedirectToAction("Index", "AdminManage");
+            }
+
+            // Retrieve and modify the target user's UserType claim
+            var targetUserClaims = await _userManager.GetClaimsAsync(targetUser);
+            var targetUserTypeClaim = targetUserClaims.FirstOrDefault(c => c.Type == "UserType");
+
+            if (targetUserTypeClaim != null)
+            {
+                await _userManager.RemoveClaimAsync(targetUser, targetUserTypeClaim);
+            }
+
+            var newType = targetUserTypeClaim?.Value == "Standard" ? "Pro" : "Standard";
+            await _userManager.AddClaimAsync(targetUser, new Claim("UserType", newType));
+
+            // Update the database if UserType is stored there
+            targetUser.UserType = newType; // Assuming UserType is a property of your ApplicationUser class
+            var result = await _userManager.UpdateAsync(targetUser);
+
+            if (!result.Succeeded)
+            {
+               
+                return RedirectToAction("Index", "AdminManage");
+            }
+
+           
             return RedirectToAction("Index", "AdminManage");
-
-
         }
+
     }
 }
