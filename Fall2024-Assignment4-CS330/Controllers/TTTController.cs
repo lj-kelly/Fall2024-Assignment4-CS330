@@ -88,7 +88,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 game.Status = Status.Complete;
                 if (game.Mode == Mode.ChatGPT)
                 {
-                    await IncrementWins();
+                    //await IncrementWins();
                 }
                 return View(_userType == "Standard" ? "Standard" : "Pro", game);
             }
@@ -98,7 +98,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                 game.Status = Status.Complete;
                 if (game.Mode == Mode.ChatGPT)
                 {
-                    await IncrementLosses();
+                    //await IncrementLosses();
                 }
                 return View(_userType == "Standard" ? "Standard" : "Pro", game);
             }
@@ -132,7 +132,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                         game.Status = Status.Complete;
                         if (game.Mode == Mode.ChatGPT)
                         {
-                            await IncrementWins();
+                            //await IncrementWins();
                         }
                     }
                 }
@@ -172,8 +172,8 @@ namespace Fall2024_Assignment4_CS330.Controllers
                     game.GameWinner = boardWinner;
                     game.Status = Status.Complete;
                     if (game.Mode == Mode.ChatGPT) {
-                        if (boardWinner == 'X') await IncrementWins();
-                        await IncrementLosses();
+                        //if (boardWinner == 'X') await IncrementWins();
+                        //await IncrementLosses();
                     }
                 }
                 else if (!IsBoardAvailable()) // no playable cells left
@@ -194,13 +194,13 @@ namespace Fall2024_Assignment4_CS330.Controllers
                     {
                         ViewBag.Message = "Player X wins the game!";
                         game.GameWinner = 'X';
-                        if (game.Mode == Mode.ChatGPT) await IncrementWins();
+                        //if (game.Mode == Mode.ChatGPT) await IncrementWins();
                     } 
                     else if (gridsWonByO > gridsWonByX)
                     {
                         ViewBag.Message = "Player O wins the game!";
                         game.GameWinner = 'O';
-                        if (game.Mode == Mode.ChatGPT) await IncrementLosses();
+                        //if (game.Mode == Mode.ChatGPT) await IncrementLosses();
                     } 
                     else // only a tie if both players won equal grids
                     {
@@ -208,7 +208,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
                         game.GameWinner = 'T';
                         if (game.Mode == Mode.ChatGPT)
                         {
-                            await IncrementTies();
+                            //await IncrementTies();
                         }
                     }
                     game.Status = Status.Complete;
@@ -273,6 +273,7 @@ namespace Fall2024_Assignment4_CS330.Controllers
             restrictedGridX = null;
             restrictedGridO = null;
 
+            _gameTimerService = new GameTimerService();
             return View(_userType == "Standard" ? "Standard" : "Pro", game);
         }
 
